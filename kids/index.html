@@ -134,7 +134,8 @@ function loadWeather(iso){
  var url="https://api.open-meteo.com/v1/forecast?latitude="+LAT+"&longitude="+LON+
   "&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weather_code"+
   "&timezone=Europe%2FBerlin&start_date="+iso+"&end_date="+iso;
- return fetch(url).then(function(r){if(!r.ok)throw r.status;return r.json();}).then(function(j){
+ var ctl=window.AbortController?new AbortController():null; if(ctl)setTimeout(function(){ctl.abort();},12000);
+ return fetch(url,ctl?{signal:ctl.signal,cache:"no-store"}:{cache:"no-store"}).then(function(r){if(!r.ok)throw r.status;return r.json();}).then(function(j){
   var h=j.hourly, rows=h.time.map(function(t,i){return {hour:+t.slice(11,13),temp:h.temperature_2m[i],feels:h.apparent_temperature[i],
    pop:h.precipitation_probability[i]||0,mm:h.precipitation[i]||0,code:h.weather_code[i]};}).filter(function(r){return r.temp!=null;});
   if(!rows.length)throw "empty";
@@ -147,7 +148,8 @@ function loadWeather(iso){
    feels_min:Math.min.apply(null,dr.map(function(r){return r.feels;})),pop_max:Math.max.apply(null,dr.map(function(r){return r.pop;})),
    mm_sum:Math.round(dr.reduce(function(s,r){return s+r.mm;},0)*10)/10,snow:dr.some(function(r){return SNOW.indexOf(r.code)>=0;})};
   render();
- }).catch(function(){ if(!WX[iso]||Date.now()-WX[iso].at>3*3600e3){delete WX[iso];} render(); });
+ }).catch(function(){ if(!WX[iso]||Date.now()-WX[iso].at>3*3600e3){delete WX[iso];}
+  setTimeout(function(){delete WX["_l"+iso];render();},60e3); /* retry in a minute */ render(); });
 }
 function loadWeekWeather(){
  return fetch("https://api.open-meteo.com/v1/forecast?latitude="+LAT+"&longitude="+LON+
@@ -199,7 +201,7 @@ function renderDay(t){
   h+='<div class="away">'+esc(lbls.join(" / ")+who)+'</div>';}
  dd.banners.forEach(function(b){h+='<div class="banner">'+esc(b)+'</div>';});
  if(!aw.noam)h+=clockHtml();
- var w=WX[t.date];
+ var w=WX[t.date]||dd.weather||null; /* live first, else the nightly forecast in data.json */
  if(dd.show_weather&&w){
   h+='<div class="weather"><div class="wxrow">'+wxCell("🌅 בבוקר",w.morning)+wxCell("🏫 אחה״צ",w.afternoon)+'</div>'+
    '<div class="weartitle">👗 מה ללבוש היום?</div><div class="chips">'+clothing(w).map(function(c){return '<span class="chip">'+c[0]+' '+esc(c[1])+'</span>';}).join("")+'</div></div>';
