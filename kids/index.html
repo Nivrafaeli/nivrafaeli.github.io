@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="הלוח שלנו">
+<meta name="theme-color" content="#5b8def">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>הלוח של נועם ובן</title>
+<style>
+@font-face{font-family:Rubik;src:url('fonts/Rubik.ttf') format('truetype');font-weight:300 900;font-display:block}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+/* 1rem = 16px on a 1024x1366 portrait iPad; scales to any size */
+html{font-size:min(1.5625vw,1.1713vh);height:100%}
+body{font-family:Rubik,"Apple Color Emoji","Noto Color Emoji","Segoe UI Emoji",sans-serif;direction:rtl;color:#1e2a3a;
+ min-height:100%;background:linear-gradient(180deg,#5b8def 0%,#8fb4ff 9%,#fdf6ec 20%,#fdf6ec 100%);
+ overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%}
+#app{position:fixed;inset:0;padding:calc(env(safe-area-inset-top) + 1.6rem) 2.6rem 2.6rem;overflow:hidden}
+.view{transform-origin:top center}
+.hidden{display:none!important}
+.top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.2rem}
+.date{font-size:3.6rem;font-weight:800;color:#fff;text-shadow:0 .15rem .4rem rgba(0,0,0,.18)}
+.btn{font:inherit;font-size:1.7rem;font-weight:700;background:#fff;color:#3d5a99;border:none;border-radius:999px;padding:.6rem 1.4rem;box-shadow:0 .2rem .6rem rgba(0,0,0,.12)}
+.banner{background:#ffcf4a;border:.2rem solid #e8a400;border-radius:1.4rem;font-size:2.3rem;font-weight:700;text-align:center;padding:.8rem 1rem;margin-bottom:1rem}
+.away{background:#e8f1ff;border:.2rem solid #2f6fd6;border-radius:1.4rem;font-size:2.4rem;font-weight:800;text-align:center;padding:.7rem 1rem;margin-bottom:1rem;color:#1d4fa8}
+/* Noam's clock */
+.clock{display:flex;gap:1rem;align-items:stretch;margin-bottom:1.2rem}
+.now{flex:0 0 13rem;background:#fff;border-radius:1.6rem;text-align:center;padding:.8rem .6rem;box-shadow:0 .25rem .75rem rgba(0,0,0,.08);display:flex;flex-direction:column;justify-content:center}
+.now .l{font-size:1.5rem;font-weight:600;color:#6b7489}
+.now .v{font-size:3.2rem;font-weight:700;color:#6b7489;direction:ltr;unicode-bidi:isolate}
+.arrive{flex:1;background:#dff7e8;border:.3rem solid #27ae60;border-radius:1.6rem;padding:.8rem 1.4rem;display:flex;align-items:center;gap:1.2rem;box-shadow:0 .25rem .75rem rgba(0,0,0,.08)}
+.arrive .ic{display:flex;align-items:center;gap:.2rem;font-size:4.2rem;line-height:1;white-space:nowrap}.arrive .ic .ar{font-size:3rem}
+.arrive .tx{flex:1}
+.arrive .who{font-size:1.5rem;font-weight:700;color:#2f80ed}
+.arrive .l{font-size:2.1rem;font-weight:700;color:#14653a;line-height:1.2}
+.arrive .v{font-size:5.4rem;font-weight:900;color:#0e7a3e;line-height:1;direction:ltr;unicode-bidi:isolate}
+.cd{margin-top:.5rem;font-size:1.9rem;font-weight:700;border-radius:1rem;padding:.35rem .9rem;display:inline-block}
+.cd.ok{background:#fff;color:#14653a}.cd.soon{background:#ffe7b3;color:#8a5a00}.cd.late{background:#eb3b3b;color:#fff}
+.arrive.late{background:#ffe1e1;border-color:#eb3b3b}
+/* weather */
+.weather{background:#fff;border-radius:1.6rem;padding:1rem 1.2rem;box-shadow:0 .25rem .75rem rgba(0,0,0,.08);margin-bottom:1.2rem}
+.wxrow{display:flex;gap:1rem}
+.wx{flex:1;display:flex;align-items:center;justify-content:center;gap:1rem;background:#eef4ff;border-radius:1.2rem;padding:.6rem .5rem}
+.wl{font-size:1.7rem;font-weight:700;color:#3d5a99}.we{font-size:3.8rem;line-height:1}
+.wt{font-size:3.8rem;font-weight:800;line-height:1;direction:ltr}.wd{font-size:1.6rem}.wr{font-size:1.5rem;color:#2f6fb0}
+.weartitle{font-size:1.9rem;font-weight:800;margin:.8rem 0 .5rem}
+.chips{display:flex;flex-wrap:wrap;gap:.6rem}
+.chip{background:#e7f8ec;border:.15rem solid #5cc27a;border-radius:999px;font-size:1.8rem;font-weight:600;padding:.3rem 1.1rem}
+/* kids */
+.cols{display:flex;gap:1.3rem;align-items:stretch}
+.col{flex:1;background:#fff;border-radius:1.6rem;border-top:.9rem solid var(--c);padding:1rem 1.1rem 1.3rem;box-shadow:0 .25rem .75rem rgba(0,0,0,.08);min-height:26rem}
+.kid{font-size:3.2rem;font-weight:900;color:var(--c);text-align:center;margin-bottom:.8rem}
+.item{display:flex;flex-direction:column;background:#f6f7fb;border-radius:1rem;padding:.7rem .9rem;margin-bottom:.7rem;border-right:.45rem solid var(--c)}
+.item.pickup{background:#fff4d6;border-right-color:#f0a500}
+.time{font-size:1.8rem;font-weight:800;color:var(--c);direction:ltr;text-align:right;unicode-bidi:isolate}
+.ttl{font-size:2.05rem;font-weight:700;line-height:1.2;display:flex;align-items:center;flex-wrap:wrap;gap:.4rem}.ttl .i{font-size:2.3rem}
+.av{width:3.6rem;height:3.6rem;border-radius:50%;flex:none}
+.item.pickup .ttl{flex-wrap:nowrap;font-size:1.85rem}
+.loc{font-size:1.35rem;color:#5b6475;margin-top:.2rem}
+.empty{text-align:center;font-size:2.1rem;font-weight:700;padding:1.6rem .3rem;color:#46506a}
+.empty .em{font-size:4.8rem}.empty .sub{font-size:1.6rem;font-weight:400;margin-top:.3rem}
+.foot{position:fixed;bottom:.5rem;left:0;right:0;text-align:center;font-size:1rem;color:#9aa3b2}
+/* week */
+h1{font-size:3rem;font-weight:900;text-align:center;margin-bottom:.6rem;color:#fff;text-shadow:0 .15rem .4rem rgba(0,0,0,.18)}
+.heads{display:flex;gap:.5rem;margin-right:9.5rem;margin-bottom:.4rem}
+.heads div{flex:1;text-align:center;font-size:2.2rem;font-weight:900}
+.row{display:flex;gap:.5rem;background:#fff;border-radius:1.1rem;margin-bottom:.55rem;padding:.5rem;box-shadow:0 .2rem .5rem rgba(0,0,0,.06)}
+.row.off{background:#fff8e1}.row.today{outline:.32rem solid #ffb300}
+.dl{width:9rem;text-align:center;background:#eef4ff;border-radius:.9rem;padding:.35rem .2rem}
+.dn{font-size:2rem;font-weight:900}.dd{font-size:1.4rem;color:#5b6475}.dwe{font-size:2rem;line-height:1.2}.dwt{font-size:1.4rem;font-weight:800;direction:ltr}.dwt small{font-size:1.1rem;font-weight:500;color:#5b6475}
+.aw{font-size:1.25rem;font-weight:800;color:#1d4fa8;background:#d6e6ff;border-radius:.5rem;margin:.2rem .1rem}
+.rc{flex:1;display:flex;flex-direction:column;gap:.25rem}
+.ban{background:#ffcf4a;border-radius:.6rem;font-size:1.35rem;font-weight:700;padding:.2rem .6rem;text-align:center}
+.cells{display:flex;gap:.5rem;flex:1}
+.cell{flex:1;border-right:.4rem solid var(--c);background:#f6f7fb;border-radius:.7rem;padding:.3rem .6rem}
+.li{font-size:1.45rem;font-weight:600;line-height:1.35;display:flex;align-items:center;gap:.25rem;flex-wrap:wrap}
+.li b{color:var(--c);direction:ltr;unicode-bidi:isolate}.li.pickup{color:#a86b00}.li.none{color:#9aa3b2}
+.sav{width:2rem;height:2rem;border-radius:50%}
+.msg{background:#fff;border-radius:1.6rem;padding:2rem;text-align:center;font-size:2.2rem;font-weight:700;color:#46506a}
+</style>
+</head>
+<body>
+<div id="app">
+ <div id="day" class="view"></div>
+ <div id="week" class="view hidden"></div>
+</div>
+<div class="foot" id="foot"></div>
+<script>
+(function(){
+"use strict";
+var TZ="Europe/Berlin", LAT=48.137, LON=11.575;
+var HEB_DAYS=["יום ראשון","יום שני","יום שלישי","יום רביעי","יום חמישי","יום שישי","שבת"]; // JS getDay order
+var HEB_MONTHS=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+var WMO={0:["☀️","שמש"],1:["🌤️","בעיקר שמש"],2:["⛅","מעונן חלקית"],3:["☁️","מעונן"],45:["🌫️","ערפל"],48:["🌫️","ערפל קפוא"],
+ 51:["🌦️","טפטוף קל"],53:["🌦️","טפטוף"],55:["🌧️","טפטוף חזק"],56:["🌧️","טפטוף קפוא"],57:["🌧️","טפטוף קפוא"],61:["🌧️","גשם קל"],
+ 63:["🌧️","גשם"],65:["🌧️","גשם חזק"],66:["🌨️","גשם קפוא"],67:["🌨️","גשם קפוא"],71:["🌨️","שלג קל"],73:["❄️","שלג"],75:["❄️","שלג כבד"],
+ 77:["🌨️","פתיתי שלג"],80:["🌦️","ממטרים קלים"],81:["🌧️","ממטרים"],82:["⛈️","ממטרים חזקים"],85:["🌨️","ממטרי שלג"],86:["❄️","ממטרי שלג חזקים"],
+ 95:["⛈️","סופת רעמים"],96:["⛈️","סופת רעמים וברד"],99:["⛈️","סופת רעמים וברד"]};
+var SNOW=[71,73,75,77,85,86];
+
+// ---- time (always Munich wall-clock; ?now=YYYY-MM-DDTHH:MM simulates a Munich time for testing) ----
+var q=new URLSearchParams(location.search), simOffset=0;
+var fmt=new Intl.DateTimeFormat("en-GB",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false});
+function munichParts(ms){var o={};fmt.formatToParts(new Date(ms)).forEach(function(p){o[p.type]=p.value;});
+ if(o.hour==="24")o.hour="00";return {date:o.year+"-"+o.month+"-"+o.day,h:+o.hour,m:+o.minute,s:+o.second};}
+if(q.get("now")){ // treat as Munich wall time: find the UTC ms that shows that wall time
+ var w=q.get("now"), guess=Date.parse(w+":00Z"); var p=munichParts(guess);
+ var diff=(Date.parse(p.date+"T"+pad(p.h)+":"+pad(p.m)+":00Z")-guess); simOffset=guess-diff-Date.now();}
+function now(){return munichParts(Date.now()+simOffset);}
+function pad(n){return (n<10?"0":"")+n;}
+function hm(min){min=((min%1440)+1440)%1440;return pad(Math.floor(min/60))+":"+pad(min%60);}
+function toMin(s){var a=s.split(":");return +a[0]*60+ +a[1];}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function dObj(iso){var a=iso.split("-");return new Date(Date.UTC(+a[0],a[1]-1,+a[2]));}
+function addDays(iso,n){var d=dObj(iso);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
+function dateTxt(iso){var d=dObj(iso);return HEB_DAYS[d.getUTCDay()]+", "+d.getUTCDate()+" ב"+HEB_MONTHS[d.getUTCMonth()];}
+
+// ---- data.json (every 5 min, cache-busted; last good copy kept for offline) ----
+var DATA=null, WX={}, WEEKWX=null, lastDate=null, view="day";
+try{DATA=JSON.parse(localStorage.getItem("kb-data")||"null");}catch(e){}
+function loadData(){
+ return fetch("data.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw r.status;return r.json();})
+ .then(function(j){DATA=j;try{localStorage.setItem("kb-data",JSON.stringify(j));}catch(e){}render();})
+ .catch(function(){render();});
+}
+function dayData(iso){if(!DATA)return null;for(var i=0;i<DATA.days.length;i++)if(DATA.days[i].date===iso)return DATA.days[i];return null;}
+function travel(){return (DATA&&DATA.travel_minutes)||15;}
+
+// ---- weather (live Open-Meteo; on failure show nothing) ----
+function loadWeather(iso){
+ var url="https://api.open-meteo.com/v1/forecast?latitude="+LAT+"&longitude="+LON+
+  "&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weather_code"+
+  "&timezone=Europe%2FBerlin&start_date="+iso+"&end_date="+iso;
+ return fetch(url).then(function(r){if(!r.ok)throw r.status;return r.json();}).then(function(j){
+  var h=j.hourly, rows=h.time.map(function(t,i){return {hour:+t.slice(11,13),temp:h.temperature_2m[i],feels:h.apparent_temperature[i],
+   pop:h.precipitation_probability[i]||0,mm:h.precipitation[i]||0,code:h.weather_code[i]};}).filter(function(r){return r.temp!=null;});
+  if(!rows.length)throw "empty";
+  function win(a,b){var rs=rows.filter(function(r){return r.hour>=a&&r.hour<=b;});if(!rs.length)rs=rows;
+   return {temp:Math.round(rs.reduce(function(s,r){return s+r.temp;},0)/rs.length),pop:Math.max.apply(null,rs.map(function(r){return r.pop;})),
+    mm:Math.round(rs.reduce(function(s,r){return s+r.mm;},0)*10)/10,code:Math.max.apply(null,rs.map(function(r){return r.code;}))};}
+  var dr=rows.filter(function(r){return r.hour>=7&&r.hour<=18;});if(!dr.length)dr=rows;
+  WX[iso]={at:Date.now(),morning:win(7,8),afternoon:win(15,16),
+   tmin:Math.round(Math.min.apply(null,dr.map(function(r){return r.temp;}))),tmax:Math.round(Math.max.apply(null,dr.map(function(r){return r.temp;}))),
+   feels_min:Math.min.apply(null,dr.map(function(r){return r.feels;})),pop_max:Math.max.apply(null,dr.map(function(r){return r.pop;})),
+   mm_sum:Math.round(dr.reduce(function(s,r){return s+r.mm;},0)*10)/10,snow:dr.some(function(r){return SNOW.indexOf(r.code)>=0;})};
+  render();
+ }).catch(function(){ if(!WX[iso]||Date.now()-WX[iso].at>3*3600e3){delete WX[iso];} render(); });
+}
+function loadWeekWeather(){
+ return fetch("https://api.open-meteo.com/v1/forecast?latitude="+LAT+"&longitude="+LON+
+  "&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&timezone=Europe%2FBerlin&forecast_days=16")
+ .then(function(r){if(!r.ok)throw r.status;return r.json();}).then(function(j){var d=j.daily,o={};
+  d.time.forEach(function(t,i){o[t]={tmax:Math.round(d.temperature_2m_max[i]),tmin:Math.round(d.temperature_2m_min[i]),code:d.weather_code[i]};});
+  WEEKWX=o;render();}).catch(function(){});
+}
+function clothing(w){ // same rules as generate.py clothing()
+ var f=w.feels_min,t=w.tmin,out=[];
+ if(f<0||t<0)out.push(["🧥","מעיל חורף חם"],["🧣","צעיף"],["🧤","כפפות"],["🧶","כובע צמר"]);
+ else if(t<5||f<3)out.push(["🧥","מעיל חם"],["🧶","כובע צמר"],["🧤","כפפות"]);
+ else if(t<10)out.push(["🧥","מעיל / ג׳קט"]);
+ else if(t<16)out.push(["🧶","סווטשירט או ג׳קט קל"]);
+ else if(w.tmax>=22)out.push(["👕","בגדים קלים"]);
+ else out.push(["👕","חולצה + שכבה דקה"]);
+ if(w.snow)out.push(["🥾","מגפי שלג"]);
+ if(w.pop_max>=50||w.mm_sum>=1){ if(!w.snow)out.push(["🧥","מעיל גשם"],["🥾","מגפי גשם"]); else out.push(["☔","מעיל עמיד למים"]); }
+ else if(w.pop_max>=30||w.mm_sum>=0.3)out.push(["☂️","מעיל גשם בתיק, ליתר ביטחון"]);
+ if(w.tmax>=24&&w.pop_max<30)out.push(["🧴","קרם הגנה"],["👒","כובע שמש"]);
+ var seen={};return out.filter(function(x){if(seen[x[1]])return false;seen[x[1]]=1;return true;});
+}
+
+// ---- render: day ----
+function itemHtml(it){
+ return '<div class="item '+esc(it.kind)+'">'+(it.time?'<div class="time">'+esc(it.time)+'</div>':'')+
+  '<div class="ttl">'+(it.avatar?'<img class="av" src="'+esc(it.avatar)+'" alt="">':'')+(it.icon?'<span class="i">'+it.icon+'</span>':'')+esc(it.title)+'</div>'+
+  (it.loc?'<div class="loc">📍 '+esc(it.loc)+'</div>':'')+'</div>';
+}
+function kidCol(name,emoji,color,items,dd,awayLbl){
+ var parts=items.map(itemHtml).join("");
+ if(!parts){var m=awayLbl?[awayLbl.split(" ")[0],awayLbl.split(" ").slice(1).join(" "),"אין משהו מיוחד ביומן"]:
+   (dd.holiday||dd.weekend)?["🎉","יום חופש!","זמן לשחק ולנוח"]:["😊","אין משהו מיוחד ביומן","יום רגיל ונעים"];
+  parts='<div class="empty"><div class="em">'+m[0]+'</div><div>'+esc(m[1])+'</div><div class="sub">'+esc(m[2])+'</div></div>';}
+ return '<div class="col" style="--c:'+color+'"><div class="kid">'+emoji+' '+esc(name)+'</div>'+parts+'</div>';
+}
+function wxCell(label,x){var e=WMO[x.code]||["🌡️",""];
+ return '<div class="wx"><div><div class="wl">'+label+'</div><div class="wd">'+e[1]+'</div><div class="wr">💧 '+x.pop+'%'+(x.mm>=0.1?' · '+x.mm.toFixed(1)+' מ״מ':'')+
+  '</div></div><div class="we">'+e[0]+'</div><div class="wt">'+x.temp+'°</div></div>';}
+function clockHtml(){return '<div class="clock" id="clock"><div class="now"><div class="l">עכשיו השעה</div><div class="v" id="nowv"></div></div>'+
+ '<div class="arrive" id="arr"><div class="ic"><span>🚶‍♂️</span><span class="ar">⬅️</span><span>🏫</span></div><div class="tx"><div class="who">🦊 נועם</div>'+
+ '<div class="l">אם תצא עכשיו תגיע לבית הספר בשעה:</div><div class="v" id="arrv"></div><div id="cd"></div></div></div></div>';}
+function renderDay(t){
+ var dd=dayData(t.date), el=document.getElementById("day");
+ var h='<div class="top"><div class="date">'+esc(dateTxt(t.date))+'</div><button class="btn" id="tw">📅 כל השבוע</button></div>';
+ if(!dd){el.innerHTML=h+clockHtml()+'<div class="msg">🤷 אין עדיין מידע ליום הזה – הלוח יתעדכן לבד</div>';tick();return;}
+ var aw=dd.away||{}, lbls=[];Object.keys(aw).forEach(function(k){if(lbls.indexOf(aw[k])<0)lbls.push(aw[k]);});
+ if(lbls.length){var who=(aw.noam&&aw.ben)?"":" ("+Object.keys(aw).map(function(k){return k==="noam"?"נועם":"בן";}).join(", ")+")";
+  h+='<div class="away">'+esc(lbls.join(" / ")+who)+'</div>';}
+ dd.banners.forEach(function(b){h+='<div class="banner">'+esc(b)+'</div>';});
+ if(!aw.noam)h+=clockHtml();
+ var w=WX[t.date];
+ if(dd.show_weather&&w){
+  h+='<div class="weather"><div class="wxrow">'+wxCell("🌅 בבוקר",w.morning)+wxCell("🏫 אחה״צ",w.afternoon)+'</div>'+
+   '<div class="weartitle">👗 מה ללבוש היום?</div><div class="chips">'+clothing(w).map(function(c){return '<span class="chip">'+c[0]+' '+esc(c[1])+'</span>';}).join("")+'</div></div>';
+ }
+ h+='<div class="cols">'+kidCol("נועם","🦊","#2f80ed",dd.kids.noam,dd,aw.noam)+kidCol("בן","🦁","#eb5757",dd.kids.ben,dd,aw.ben)+'</div>';
+ el.innerHTML=h; tick();
+}
+// ---- render: week (Mon–Sun; on Sunday the coming week, like the PNG) ----
+function renderWeek(t){
+ var d=dObj(t.date), wd=(d.getUTCDay()+6)%7, mon=addDays(t.date,-wd+(wd===6?7:0)), rows="";
+ for(var i=0;i<7;i++){var iso=addDays(mon,i), dd=dayData(iso), x=dObj(iso), ww=WEEKWX&&WEEKWX[iso];
+  var off=dd&&(dd.holiday||dd.weekend), aw=(dd&&dd.away)||{};
+  if(dd&&!dd.show_weather)ww=null;
+  var awl=[];Object.keys(aw).forEach(function(k){if(awl.indexOf(aw[k])<0)awl.push(aw[k]);});
+  var cells=[["noam","#2f80ed"],["ben","#eb5757"]].map(function(k){
+   var its=dd?dd.kids[k[0]]:[], li=its.map(function(it){return '<div class="li '+esc(it.kind)+'">'+(it.time&&it.time!=="כל היום"?'<b>'+esc(it.time)+'</b> ':'')+
+    (it.avatar?'<img class="sav" src="'+esc(it.avatar)+'" alt="">':'')+(it.icon||"")+' '+esc(it.title)+'</div>';}).join("");
+   if(!li)li='<div class="li none">'+(!dd?"—":aw[k[0]]?esc(aw[k[0]]):dd.holiday?"🎉 חופש":dd.weekend?"😎 סופ״ש":"—")+'</div>';
+   return '<div class="cell" style="--c:'+k[1]+'">'+li+'</div>';}).join("");
+  rows+='<div class="row'+(iso===t.date?" today":"")+(off?" off":"")+'"><div class="dl"><div class="dn">'+HEB_DAYS[x.getUTCDay()].replace("יום ","")+'</div><div class="dd">'+
+   x.getUTCDate()+"."+(x.getUTCMonth()+1)+'</div>'+(awl.length?'<div class="aw">'+esc(awl.join(" / "))+'</div>':'')+
+   (ww?'<div class="dwe">'+(WMO[ww.code]||["🌡️"])[0]+'</div><div class="dwt">'+ww.tmax+'° <small>/ '+ww.tmin+'°</small></div>':'')+'</div><div class="rc">'+
+   (dd?dd.banners.map(function(b){return '<div class="ban">'+esc(b)+'</div>';}).join(""):"")+'<div class="cells">'+cells+'</div></div></div>';}
+ var e=addDays(mon,6), a=dObj(mon), b=dObj(e);
+ document.getElementById("week").innerHTML='<div class="top"><h1>📅 השבוע: '+a.getUTCDate()+"."+(a.getUTCMonth()+1)+" – "+b.getUTCDate()+"."+(b.getUTCMonth()+1)+
+  '</h1><button class="btn" id="tdy">☀️ היום</button></div><div class="heads"><div style="color:#2f80ed">🦊 נועם</div><div style="color:#eb5757">🦁 בן</div></div>'+rows;
+}
+function fit(){ // shrink to fit the screen, never scroll
+ ["day","week"].forEach(function(id){var el=document.getElementById(id);el.style.transform="";if(el.classList.contains("hidden"))return;
+  var app=document.getElementById("app"), cs=getComputedStyle(app), avail=app.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
+  var hgt=el.scrollHeight; if(hgt>avail){var s=avail/hgt;el.style.transform="scale("+s.toFixed(3)+")";}});
+}
+function render(){
+ var t=now(); lastDate=t.date;
+ if(!WX[t.date]&&!WX["_l"+t.date]){WX["_l"+t.date]=1;loadWeather(t.date);}
+ renderDay(t); renderWeek(t);
+ document.getElementById("day").classList.toggle("hidden",view!=="day");
+ document.getElementById("week").classList.toggle("hidden",view!=="week");
+ var g=DATA&&DATA.generated?DATA.generated.slice(8,10)+"."+DATA.generated.slice(5,7)+" "+DATA.generated.slice(11,16):"—";
+ document.getElementById("foot").textContent="לו״ז עודכן "+g+" · מזג אוויר: Open-Meteo";
+ fit();
+}
+// ---- every second: clocks, countdown, midnight switch ----
+function tick(){
+ var t=now(); if(lastDate&&t.date!==lastDate){render();return;}
+ var nm=t.h*60+t.m, nv=document.getElementById("nowv"); if(!nv)return;
+ nv.textContent=pad(t.h)+":"+pad(t.m);
+ document.getElementById("arrv").textContent=hm(nm+travel());
+ var dd=dayData(t.date), cd=document.getElementById("cd"), arr=document.getElementById("arr"), cls="", txt="";
+ if(dd&&dd.noam_school&&dd.leave_by&&nm>=6*60&&nm<toMin(dd.school_start)){
+  var left=toMin(dd.leave_by)-nm;
+  if(left>5){cls="ok";txt="⏳ עוד "+left+" דקות צריך לצאת (ב-"+dd.leave_by+")";}
+  else if(left>0){cls="soon";txt="⏰ עוד "+left+" דקות צריך לצאת (ב-"+dd.leave_by+")!";}
+  else if(left===0){cls="late";txt="🏃 צריך לצאת עכשיו!";}
+  else {cls="late";txt="🏃 מאחרים ב-"+(-left)+" דקות – צא מהר!";}
+ }
+ cd.className=cls?"cd "+cls:""; cd.textContent=txt; arr.classList.toggle("late",cls==="late");
+}
+// ---- navigation: tap button or swipe sideways ----
+document.addEventListener("click",function(e){var id=e.target&&e.target.id;if(id==="tw"){view="week";render();}else if(id==="tdy"){view="day";render();}});
+var sx=null,sy=null;
+document.addEventListener("touchstart",function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+document.addEventListener("touchend",function(e){if(sx==null)return;var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+ if(Math.abs(dx)>80&&Math.abs(dx)>Math.abs(dy)*1.5){view=view==="day"?"week":"day";render();}sx=null;},{passive:true});
+document.addEventListener("touchmove",function(e){e.preventDefault();},{passive:false}); // no rubber-band scrolling
+if(q.get("view")==="week")view="week";
+window.addEventListener("resize",fit);
+document.addEventListener("visibilitychange",function(){if(!document.hidden){loadData();delete WX["_l"+now().date];delete WX[now().date];render();}});
+
+render(); loadData(); loadWeekWeather();
+setInterval(tick,1000);
+setInterval(loadData,5*60e3);
+setInterval(function(){var d=now().date;delete WX["_l"+d];loadWeather(d);},30*60e3);
+setInterval(loadWeekWeather,3*3600e3);
+})();
+</script>
+</body>
+</html>
