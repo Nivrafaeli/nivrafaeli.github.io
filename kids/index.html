@@ -119,7 +119,7 @@ function addDays(iso,n){var d=dObj(iso);d.setUTCDate(d.getUTCDate()+n);return d.
 function dateTxt(iso){var d=dObj(iso);return HEB_DAYS[d.getUTCDay()]+", "+d.getUTCDate()+" ב"+HEB_MONTHS[d.getUTCMonth()];}
 
 // ---- data.json (every 5 min, cache-busted; last good copy kept for offline) ----
-var DATA=null, WX={}, WEEKWX=null, lastDate=null, view="day";
+var DATA=null, WXSTAT="טוען…", BUILD="v3 02.11", WX={}, WEEKWX=null, lastDate=null, view="day";
 try{DATA=JSON.parse(localStorage.getItem("kb-data")||"null");}catch(e){}
 function loadData(){
  return fetch("data.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw r.status;return r.json();})
@@ -143,12 +143,13 @@ function loadWeather(iso){
    return {temp:Math.round(rs.reduce(function(s,r){return s+r.temp;},0)/rs.length),pop:Math.max.apply(null,rs.map(function(r){return r.pop;})),
     mm:Math.round(rs.reduce(function(s,r){return s+r.mm;},0)*10)/10,code:Math.max.apply(null,rs.map(function(r){return r.code;}))};}
   var dr=rows.filter(function(r){return r.hour>=7&&r.hour<=18;});if(!dr.length)dr=rows;
+  WXSTAT="חי "+new Date().toTimeString().slice(0,5);
   WX[iso]={at:Date.now(),morning:win(7,8),afternoon:win(15,16),
    tmin:Math.round(Math.min.apply(null,dr.map(function(r){return r.temp;}))),tmax:Math.round(Math.max.apply(null,dr.map(function(r){return r.temp;}))),
    feels_min:Math.min.apply(null,dr.map(function(r){return r.feels;})),pop_max:Math.max.apply(null,dr.map(function(r){return r.pop;})),
    mm_sum:Math.round(dr.reduce(function(s,r){return s+r.mm;},0)*10)/10,snow:dr.some(function(r){return SNOW.indexOf(r.code)>=0;})};
   render();
- }).catch(function(){ if(!WX[iso]||Date.now()-WX[iso].at>3*3600e3){delete WX[iso];}
+}).catch(function(e){ WXSTAT="שגיאה: "+(e&&(e.name||e.message)||e); if(!WX[iso]||Date.now()-WX[iso].at>3*3600e3){delete WX[iso];}
   setTimeout(function(){delete WX["_l"+iso];render();},60e3); /* retry in a minute */ render(); });
 }
 function loadWeekWeather(){
@@ -241,7 +242,7 @@ function render(){
  document.getElementById("day").classList.toggle("hidden",view!=="day");
  document.getElementById("week").classList.toggle("hidden",view!=="week");
  var g=DATA&&DATA.generated?DATA.generated.slice(8,10)+"."+DATA.generated.slice(5,7)+" "+DATA.generated.slice(11,16):"—";
- document.getElementById("foot").textContent="לו״ז עודכן "+g+" · מזג אוויר: Open-Meteo";
+ document.getElementById("foot").textContent="לו״ז עודכן "+g+" · מזג אוויר: "+(WX[t.date]?"Open-Meteo "+WXSTAT:(dayData(t.date)&&dayData(t.date).weather?"תחזית גיבוי ("+WXSTAT+")":"אין ("+WXSTAT+")"))+" · "+BUILD;
  fit();
 }
 // ---- every second: clocks, countdown, midnight switch ----
