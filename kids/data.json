@@ -1,0 +1,445 @@
+{
+ "generated": "2026-11-02T14:42:34+01:00",
+ "timezone": "Europe/Berlin",
+ "location": {
+  "name": "München",
+  "lat": 48.137,
+  "lon": 11.575
+ },
+ "travel_minutes": 15,
+ "school_start_default": "08:00",
+ "source": "Google Calendar נועם/בן + openholidaysapi.org (DE-BY)",
+ "days": [
+  {
+   "date": "2026-11-02",
+   "date_txt": "יום שני, 2 בנובמבר",
+   "day_short": "שני",
+   "banners": [
+    "חופשת סתיו 🍂"
+   ],
+   "holiday": true,
+   "weekend": false,
+   "away": {},
+   "show_weather": true,
+   "noam_school": false,
+   "school_start": null,
+   "leave_by": null,
+   "kids": {
+    "noam": [],
+    "ben": []
+   }
+  },
+  {
+   "date": "2026-11-03",
+   "date_txt": "יום שלישי, 3 בנובמבר",
+   "day_short": "שלישי",
+   "banners": [
+    "חופשת סתיו 🍂"
+   ],
+   "holiday": true,
+   "weekend": false,
+   "away": {},
+   "show_weather": true,
+   "noam_school": false,
+   "school_start": null,
+   "leave_by": null,
+   "kids": {
+    "noam": [],
+    "ben": []
+   }
+  },
+  {
+   "date": "2026-11-04",
+   "date_txt": "יום רביעי, 4 בנובמבר",
+   "day_short": "רביעי",
+   "banners": [
+    "חופשת סתיו 🍂"
+   ],
+   "holiday": true,
+   "weekend": false,
+   "away": {},
+   "show_weather": true,
+   "noam_school": false,
+   "school_start": null,
+   "leave_by": null,
+   "kids": {
+    "noam": [
+     {
+      "kind": "event",
+      "time": "17:00",
+      "title": "טניס שולחן 🏓"
+     }
+    ],
+    "ben": []
+   }
+  },
+  {
+   "date": "2026-11-05",
+   "date_txt": "יום חמישי, 5 בנובמבר",
+   "day_short": "חמישי",
+   "banners": [
+    "חופשת סתיו 🍂"
+   ],
+   "holiday": true,
+   "weekend": false,
+   "away": {},
+   "show_weather": true,
+   "noam_school": false,
+   "school_start": null,
+   "leave_by": null,
+   "kids": {
+    "noam": [
+     {
+      "kind": "event",
+      "time": "16:00",
+      "title": "כדורגל ⚽"
+     }
+    ],
+    "ben": [
+     {
+      "kind": "event",
+      "time": "15:30",
+      "title": "קורס סקייטבורד 🛹",
+      "loc": "Skateschule München"
+     }
+    ]
+   }
+  },
+  {
+   "date": "2026-11-06",
+   "date_txt": "יום שישי, 6 בנובמבר",
+   "day_short": "שישי",
+   "banners": [
+    "חופשת סתיו 🍂"
+   ],
+   "holiday": true,
+   "weekend": false,
+   "away": {},
+   "show_weather": true,
+   "noam_school": false,
+   "school_start": null,
+   "leave_by": null,
+   "kids": {
+    "noam": [],
+    "ben": [
+     {
+      "kind": "event",
+      "time": "16:00",
+      "title": "כדורגל ⚽"
+     }
+    ]
+   }
+  },
+  {
+   "date": "2026-11-07",
+   "date_txt": "שבת, 7 בנובמבר",
+   "day_short": "שבת",
+   "banners": [],
+   "holiday": false,
+   "weekend": true,
+   "away": {},
+   "show_weather": true,
+   "noam_school": false,
+   "school_start": null,
+   "leave_by": null,
+   "kids": {
+    "noam": [
+     {
+      "kind": "event",
+      "time": "11:00",
+      "title": "ברייקדאנס 🕺"
+     }
+    ],
+    "ben": []
+   }
+  },
+  {
+   "date": "2026-11-08",
+   "date_txt": "יום ראשון, 8 בנובמבר",
+   "day_short": "ראשון",
+   "banners": [],
+   "holiday": false,
+   "weekend": true,
+   "away": {},
+   "show_weather": true,
+   "noam_school": false,
+   "school_start": null,
+   "leave_by": null,
+   "kids": {
+    "noam": [],
+    "ben": []
+   }
+  },
+  {
+   "date": "2026-11-09",
+   "date_txt": "יום שני, 9 בנובמבר",
+   "day_short": "שני",
+   "banners": [],
+   "holiday": false,
+   "weekend": false,
+   "away": {},
+   "show_weather": true,
+   "noam_school": true,
+   "school_start": "08:00",
+   "leave_by": "07:45",
+   "kids": {
+    "noam": [
+     {
+      "kind": "school",
+      "time": "08:00–12:15",
+      "title": "בית ספר 🏫",
+      "loc": "Grundschule am Dom-Pedro-Platz"
+     },
+     {
+      "kind": "after",
+      "title": "הורט 🏠",
+      "loc": "Städt. Hort Dom-Pedro-Platz 2"
+     },
+     {
+      "kind": "pickup",
+      "title": "אבא אוסף ב-16:00 מההורט",
+      "avatar": "dad.png"
+     }
+    ],
+    "ben": [
+     {
+      "kind": "school",
+      "time": "08:00",
+      "title": "גן 🧸",
+      "loc": "Kindergarten Dom Pedro"
+     },
+     {
+      "kind": "pickup",
+      "title": "אבא אוסף ב-16:00 מהגן",
+      "avatar": "dad.png"
+     }
+    ]
+   }
+  },
+  {
+   "date": "2026-11-10",
+   "date_txt": "יום שלישי, 10 בנובמבר",
+   "day_short": "שלישי",
+   "banners": [],
+   "holiday": false,
+   "weekend": false,
+   "away": {},
+   "show_weather": true,
+   "noam_school": true,
+   "school_start": "08:00",
+   "leave_by": "07:45",
+   "kids": {
+    "noam": [
+     {
+      "kind": "school",
+      "time": "08:00–13:00",
+      "title": "בית ספר 🏫",
+      "loc": "Grundschule am Dom-Pedro-Platz"
+     },
+     {
+      "kind": "after",
+      "title": "הורט 🏠",
+      "loc": "Städt. Hort Dom-Pedro-Platz 2"
+     },
+     {
+      "kind": "pickup",
+      "title": "אבא אוסף ב-16:00 מההורט",
+      "avatar": "dad.png"
+     }
+    ],
+    "ben": [
+     {
+      "kind": "school",
+      "time": "08:00",
+      "title": "גן 🧸",
+      "loc": "Kindergarten Dom Pedro"
+     },
+     {
+      "kind": "pickup",
+      "title": "אבא אוסף ב-16:00 מהגן",
+      "avatar": "dad.png"
+     }
+    ]
+   }
+  },
+  {
+   "date": "2026-11-11",
+   "date_txt": "יום רביעי, 11 בנובמבר",
+   "day_short": "רביעי",
+   "banners": [],
+   "holiday": false,
+   "weekend": false,
+   "away": {},
+   "show_weather": true,
+   "noam_school": true,
+   "school_start": "08:00",
+   "leave_by": "07:45",
+   "kids": {
+    "noam": [
+     {
+      "kind": "school",
+      "time": "08:00–13:00",
+      "title": "בית ספר 🏫",
+      "loc": "Grundschule am Dom-Pedro-Platz"
+     },
+     {
+      "kind": "after",
+      "title": "הורט 🏠",
+      "loc": "Städt. Hort Dom-Pedro-Platz 2"
+     },
+     {
+      "kind": "event",
+      "time": "17:00",
+      "title": "טניס שולחן 🏓"
+     }
+    ],
+    "ben": [
+     {
+      "kind": "school",
+      "time": "08:00",
+      "title": "גן 🧸",
+      "loc": "Kindergarten Dom Pedro"
+     },
+     {
+      "kind": "pickup",
+      "title": "אבא אוסף ב-16:00 מהגן",
+      "avatar": "dad.png"
+     }
+    ]
+   }
+  },
+  {
+   "date": "2026-11-12",
+   "date_txt": "יום חמישי, 12 בנובמבר",
+   "day_short": "חמישי",
+   "banners": [],
+   "holiday": false,
+   "weekend": false,
+   "away": {},
+   "show_weather": true,
+   "noam_school": true,
+   "school_start": "08:00",
+   "leave_by": "07:45",
+   "kids": {
+    "noam": [
+     {
+      "kind": "school",
+      "time": "08:00–12:15",
+      "title": "בית ספר 🏫",
+      "loc": "Grundschule am Dom-Pedro-Platz"
+     },
+     {
+      "kind": "after",
+      "title": "הורט 🏠",
+      "loc": "Städt. Hort Dom-Pedro-Platz 2"
+     },
+     {
+      "kind": "event",
+      "time": "16:00",
+      "title": "כדורגל ⚽"
+     }
+    ],
+    "ben": [
+     {
+      "kind": "school",
+      "time": "08:00",
+      "title": "גן 🧸",
+      "loc": "Kindergarten Dom Pedro"
+     },
+     {
+      "kind": "event",
+      "time": "15:30",
+      "title": "קורס סקייטבורד 🛹",
+      "loc": "Skateschule München"
+     }
+    ]
+   }
+  },
+  {
+   "date": "2026-11-13",
+   "date_txt": "יום שישי, 13 בנובמבר",
+   "day_short": "שישי",
+   "banners": [],
+   "holiday": false,
+   "weekend": false,
+   "away": {},
+   "show_weather": true,
+   "noam_school": true,
+   "school_start": "08:00",
+   "leave_by": "07:45",
+   "kids": {
+    "noam": [
+     {
+      "kind": "school",
+      "time": "08:00–13:00",
+      "title": "בית ספר 🏫",
+      "loc": "Grundschule am Dom-Pedro-Platz"
+     },
+     {
+      "kind": "after",
+      "title": "הורט 🏠",
+      "loc": "Städt. Hort Dom-Pedro-Platz 2"
+     },
+     {
+      "kind": "pickup",
+      "title": "אבא אוסף ב-16:00 מההורט",
+      "avatar": "dad.png"
+     }
+    ],
+    "ben": [
+     {
+      "kind": "school",
+      "time": "08:00",
+      "title": "גן 🧸",
+      "loc": "Kindergarten Dom Pedro"
+     },
+     {
+      "kind": "event",
+      "time": "16:00",
+      "title": "כדורגל ⚽"
+     }
+    ]
+   }
+  },
+  {
+   "date": "2026-11-14",
+   "date_txt": "שבת, 14 בנובמבר",
+   "day_short": "שבת",
+   "banners": [],
+   "holiday": false,
+   "weekend": true,
+   "away": {},
+   "show_weather": true,
+   "noam_school": false,
+   "school_start": null,
+   "leave_by": null,
+   "kids": {
+    "noam": [
+     {
+      "kind": "event",
+      "time": "11:00",
+      "title": "ברייקדאנס 🕺"
+     }
+    ],
+    "ben": []
+   }
+  },
+  {
+   "date": "2026-11-15",
+   "date_txt": "יום ראשון, 15 בנובמבר",
+   "day_short": "ראשון",
+   "banners": [],
+   "holiday": false,
+   "weekend": true,
+   "away": {},
+   "show_weather": true,
+   "noam_school": false,
+   "school_start": null,
+   "leave_by": null,
+   "kids": {
+    "noam": [],
+    "ben": []
+   }
+  }
+ ]
+}
