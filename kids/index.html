@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="הלוח שלנו">
 <meta name="theme-color" content="#5b8def">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>הלוח של נועם ובן</title>
+<title>הלוח של נועם</title>
 <style>
 @font-face{font-family:Rubik;src:url('fonts/Rubik.ttf') format('truetype');font-weight:300 900;font-display:block}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -68,6 +68,12 @@ body{font-family:Rubik,"Apple Color Emoji","Noto Color Emoji","Segoe UI Emoji",s
 /* week */
 h1{font-size:3rem;font-weight:900;text-align:center;margin-bottom:.6rem;color:#fff;text-shadow:0 .15rem .4rem rgba(0,0,0,.18)}
 .heads{display:flex;gap:.5rem;margin-right:9.5rem;margin-bottom:.4rem}
+/* v3: Noam only – one wide column, bigger text */
+.col.solo{min-height:0;padding:1.2rem 1.6rem 1.4rem}.col.solo .kid{font-size:3.6rem}
+.col.solo .item{padding:.9rem 1.2rem;margin-bottom:.8rem}.col.solo .time{font-size:2.4rem}.col.solo .ttl{font-size:2.8rem}.col.solo .ttl .i{font-size:3rem}
+.col.solo .item.pickup .ttl{font-size:2.6rem}.col.solo .av{width:4.4rem;height:4.4rem}.col.solo .loc{font-size:1.7rem}
+.col.solo .empty{font-size:2.8rem}.col.solo .empty .em{font-size:6rem}.col.solo .empty .sub{font-size:2rem}
+.solo .li{font-size:2rem}.solo .cell{padding:.5rem .9rem}
 .heads div{flex:1;text-align:center;font-size:2.2rem;font-weight:900}
 .row{display:flex;gap:.5rem;background:#fff;border-radius:1.1rem;margin-bottom:.55rem;padding:.5rem;box-shadow:0 .2rem .5rem rgba(0,0,0,.06)}
 .row.off{background:#fff8e1}.row.today{outline:.32rem solid #ffb300}
@@ -187,12 +193,12 @@ function dObj(iso){var a=iso.split("-");return new Date(Date.UTC(+a[0],a[1]-1,+a
 function addDays(iso,n){var d=dObj(iso);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
 function dateTxt(iso){var d=dObj(iso);return HEB_DAYS[d.getUTCDay()]+", "+d.getUTCDate()+" ב"+HEB_MONTHS[d.getUTCMonth()];}
 
-// ---- data.json (every 5 min, cache-busted; last good copy kept for offline) ----
-var DATA=null, WXSTAT="טוען…", BUILD="noam v2 03.11", WX={}, WEEKWX=null, lastDate=null, view="day";
-try{DATA=JSON.parse(localStorage.getItem("kb-data")||"null");}catch(e){}
+// ---- noam.json, Noam-only subset of data.json (every 5 min, cache-busted; last good copy kept for offline) ----
+var DATA=null, WXSTAT="טוען…", BUILD="noam v3 03.11", WX={}, WEEKWX=null, lastDate=null, view="day";
+try{DATA=JSON.parse(localStorage.getItem("kb-noam-data")||"null");}catch(e){}
 function loadData(){
- return fetch("data.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw r.status;return r.json();})
- .then(function(j){DATA=j;try{localStorage.setItem("kb-data",JSON.stringify(j));}catch(e){}render();})
+ return fetch("noam.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw r.status;return r.json();})
+ .then(function(j){DATA=j;try{localStorage.setItem("kb-noam-data",JSON.stringify(j));}catch(e){}render();})
  .catch(function(){render();});
 }
 function dayData(iso){if(!DATA)return null;for(var i=0;i<DATA.days.length;i++)if(DATA.days[i].date===iso)return DATA.days[i];return null;}
@@ -266,9 +272,8 @@ function renderDay(t){
  var dd=dayData(t.date), el=document.getElementById("board");
  var h='<div class="top"><div class="date">'+esc(dateTxt(t.date))+'</div><button class="btn" id="tw">📅 כל השבוע</button></div>';
  if(!dd){el.innerHTML=h+clockHtml()+'<div class="msg">🤷 אין עדיין מידע ליום הזה – הלוח יתעדכן לבד</div>';tick();return;}
- var aw=dd.away||{}, lbls=[];Object.keys(aw).forEach(function(k){if(lbls.indexOf(aw[k])<0)lbls.push(aw[k]);});
- if(lbls.length){var who=(aw.noam&&aw.ben)?"":" ("+Object.keys(aw).map(function(k){return k==="noam"?"נועם":"בן";}).join(", ")+")";
-  h+='<div class="away">'+esc(lbls.join(" / ")+who)+'</div>';}
+ var aw=dd.away||{};
+ if(aw.noam)h+='<div class="away">'+esc(aw.noam)+'</div>';
  dd.banners.forEach(function(b){h+='<div class="banner">'+esc(b)+'</div>';});
  if(!aw.noam)h+='<div id="mbar"></div>'+clockHtml();
  var w=WX[t.date]||dd.weather||null; /* live first, else the nightly forecast in data.json */
@@ -276,7 +281,7 @@ function renderDay(t){
   h+='<div class="weather"><div class="wxrow">'+wxCell("🌅 בבוקר",w.morning)+wxCell("🏫 אחה״צ",w.afternoon)+'</div>'+
    '<div class="weartitle">👗 מה ללבוש היום?</div><div class="chips">'+clothing(w).map(function(c){return '<span class="chip">'+c[0]+' '+esc(c[1])+'</span>';}).join("")+'</div></div>';
  }
- h+='<div class="cols">'+kidCol("נועם","🦊","#2f80ed",dd.kids.noam,dd,aw.noam)+kidCol("בן","🦁","#eb5757",dd.kids.ben,dd,aw.ben)+'</div>';
+ h+='<div class="cols">'+kidCol("נועם","🦊","#2f80ed",dd.kids.noam,dd,aw.noam).replace('class="col"','class="col solo"')+'</div>';
  el.innerHTML=h; mKey=null; tick();
 }
 // ---- render: week (Mon–Sun; on Sunday the coming week, like the PNG) ----
@@ -285,8 +290,8 @@ function renderWeek(t){
  for(var i=0;i<7;i++){var iso=addDays(mon,i), dd=dayData(iso), x=dObj(iso), ww=WEEKWX&&WEEKWX[iso];
   var off=dd&&(dd.holiday||dd.weekend), aw=(dd&&dd.away)||{};
   if(dd&&!dd.show_weather)ww=null;
-  var awl=[];Object.keys(aw).forEach(function(k){if(awl.indexOf(aw[k])<0)awl.push(aw[k]);});
-  var cells=[["noam","#2f80ed"],["ben","#eb5757"]].map(function(k){
+  var awl=aw.noam?[aw.noam]:[];
+  var cells=[["noam","#2f80ed"]].map(function(k){
    var its=dd?dd.kids[k[0]]:[], li=its.map(function(it){return '<div class="li '+esc(it.kind)+'">'+(it.time&&it.time!=="כל היום"?'<b>'+esc(it.time)+'</b> ':'')+
     (it.avatar?'<img class="sav" src="'+esc(it.avatar)+'" alt="">':'')+(it.icon||"")+' '+esc(it.title)+'</div>';}).join("");
    if(!li)li='<div class="li none">'+(!dd?"—":aw[k[0]]?esc(aw[k[0]]):dd.holiday?"🎉 חופש":dd.weekend?"😎 סופ״ש":"—")+'</div>';
@@ -297,7 +302,7 @@ function renderWeek(t){
    (dd?dd.banners.map(function(b){return '<div class="ban">'+esc(b)+'</div>';}).join(""):"")+'<div class="cells">'+cells+'</div></div></div>';}
  var e=addDays(mon,6), a=dObj(mon), b=dObj(e);
  document.getElementById("week").innerHTML='<div class="top"><h1>📅 השבוע: '+a.getUTCDate()+"."+(a.getUTCMonth()+1)+" – "+b.getUTCDate()+"."+(b.getUTCMonth()+1)+
-  '</h1><button class="btn" id="tdy">☀️ היום</button></div><div class="heads"><div style="color:#2f80ed">🦊 נועם</div><div style="color:#eb5757">🦁 בן</div></div>'+rows;
+  '</h1><button class="btn" id="tdy">☀️ היום</button></div><div class="heads"><div style="color:#2f80ed">🦊 נועם</div></div><div class="solo">'+rows+'</div>';
 }
 function fit(){ // the board (and the week) shrink to fit the screen; checklist + writing area sit below the board (scroll down)
  var app=document.getElementById("app"), cs=getComputedStyle(app), avail=app.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
