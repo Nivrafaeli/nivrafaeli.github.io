@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-02T14:42:34+01:00",
+ "generated": "2026-11-03T10:34:57+01:00",
  "timezone": "Europe/Berlin",
  "location": {
   "name": "München",
@@ -420,6 +420,11 @@
    "leave_by": "07:45",
    "kids": {
     "noam": [
+     {
+      "kind": "bring",
+      "title": "להביא היום: בגדי ספורט ומטקה",
+      "icon": "👕🏓"
+     },
      {
       "kind": "school",
       "time": "08:00–13:00",
