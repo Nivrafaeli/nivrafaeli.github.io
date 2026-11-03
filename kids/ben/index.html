@@ -187,16 +187,17 @@ textarea:focus{outline:none;border-color:#eb5757}
 // Both are write-only: nobody can read the diary through them.
 var DIARY_ENDPOINT = "https://script.google.com/macros/s/AKfycbwijY_uMoVurCDfsgYe0QYST0CEUdnr5VNAxmf-FLuR6TQY61j-Yly9vASkkiXU5Q4Fdw/exec";
 var DIARY_FIELD = "";
-// ================= v3: BEN'S OWN GMAIL (rafaeli.ben1@gmail.com) =================
-// BEN_MAIL_URL: the /exec URL of the web app in Ben's Google account (scriptable/ben-account-mail.gs). Empty = feature off:
-// no 📬 button, and diary letters keep going through DIARY_ENDPOINT above (nothing changes).
+// ================= v4: BEN'S OWN GMAIL (rafaeli.ben1@gmail.com) =================
+// BEN_MAIL_URL: the same "Ben diary" web app as DIARY_ENDPOINT (scriptable/ben-diary-v4.gs). That script holds the OAuth link to
+// Ben's Gmail and decides the sender (rafaeli.ben1@gmail.com when connected, otherwise the old path). Empty = feature off.
+// The 📬 button stays hidden until ?action=inbox answers ok (needs the key AND Ben's account connected in the script).
 // The secret key is NOT kept in this public file: open https://nivrafaeli.github.io/kids/ben/?mailkey=<KEY> once on Ben's iPad
 // (authAll() in the script logs that link); the page stores it on the iPad and removes it from the address bar.
-var BEN_MAIL_URL = "";
+var BEN_MAIL_URL = "https://script.google.com/macros/s/AKfycbwijY_uMoVurCDfsgYe0QYST0CEUdnr5VNAxmf-FLuR6TQY61j-Yly9vASkkiXU5Q4Fdw/exec";
 var BEN_MAIL_KEY = "";   // fallback only – leave empty (anything here is public)
 var MAIL_POLL_MS = 2*60e3;
 // ==================================================================
-var TZ="Europe/Berlin", LAT=48.137, LON=11.575, BUILD="ben v3 03.11";
+var TZ="Europe/Berlin", LAT=48.137, LON=11.575, BUILD="ben v4 03.11";
 var HEB_DAYS=["יום ראשון","יום שני","יום שלישי","יום רביעי","יום חמישי","יום שישי","שבת"];
 var HEB_MONTHS=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 var WMO={0:["☀️","שמש"],1:["🌤️","בעיקר שמש"],2:["⛅","מעונן חלקית"],3:["☁️","מעונן"],45:["🌫️","ערפל"],48:["🌫️","ערפל קפוא"],
@@ -343,7 +344,7 @@ function putDiary(a){try{localStorage.setItem("ben-diary",JSON.stringify(a));ret
 function findEntry(a,id){for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null;}
 function needsPost(e){return e.deleted?!e.synced:(!e.synced||(e.sendTo&&e.sendTo.length>0));}
 function sendEntry(e,to){
- var own=mailOn();                                              // v3: Ben's own account sends as rafaeli.ben1@gmail.com
+ var own=mailOn();                                              // v4: same URL + key; the script sends as rafaeli.ben1@gmail.com when connected
  if(!own&&!DIARY_ENDPOINT)return Promise.reject("no endpoint");
  var opt;
  if(own){var b3={id:e.id,ts:e.ts,when:stampTxt(e.ts),text:e.txt,key:mailKey()}; if(to&&to.length)b3.to=to;
@@ -465,7 +466,7 @@ function renderWeek(){
 }
 function showWeek(){wkMon=monOf(now().date);renderWeek();setView("weekv");if(!WEEKWX)loadWeekWeather();}
 
-// ---- v3: 📬 messages from family (unread mail in rafaeli.ben1@gmail.com, via Ben's own web app) ----
+// ---- v4: 📬 messages from family (unread mail in rafaeli.ben1@gmail.com, read by the Ben diary script via the Gmail API) ----
 (function(){var k=q.get("mailkey");if(k){try{localStorage.setItem("ben-mail-key",k);}catch(e){}
  try{var u=new URL(location.href);u.searchParams.delete("mailkey");history.replaceState(null,"",u.pathname+(u.search||"")+u.hash);}catch(e){}}})();
 function mailKey(){var k="";try{k=localStorage.getItem("ben-mail-key")||"";}catch(e){}return k||BEN_MAIL_KEY||"";}
@@ -485,7 +486,7 @@ function loadInbox(){
  if(!mailOn()){MAIL.ok=false;renderMailBtn();return Promise.resolve(false);}
  if(mailBusy||document.hidden)return Promise.resolve(false); mailBusy=true;
  return mailGet("action=inbox").then(function(j){mailBusy=false;
-  if(!j||!j.ok){if(j&&j.error==="key")MAIL={ok:false,items:[]};renderMailBtn();return false;}
+  if(!j||!j.ok){if(j&&(j.error==="key"||j.error==="off"||j.error==="auth"))MAIL={ok:false,items:[]};renderMailBtn();return false;}
   MAIL={ok:true,items:(j.items||[]).slice(0,20)};
   // anything opened here but still unread on the server (markread failed) → retry quietly
   MAIL.items.forEach(function(m){if(isRead(m.id))mailGet("action=markread&id="+encodeURIComponent(m.id)).catch(function(){});});
