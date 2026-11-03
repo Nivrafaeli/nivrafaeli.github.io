@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="הלוח של בן">
+<meta name="theme-color" content="#eb5757">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>הלוח של בן</title>
+<style>
+@font-face{font-family:Rubik;src:url('../fonts/Rubik.ttf') format('truetype');font-weight:300 900;font-display:block}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+/* 1rem = 16px on a 1024x1366 portrait iPad; scales to any size */
+html{font-size:min(1.5625vw,1.1713vh)}
+body{font-family:Rubik,"Apple Color Emoji","Noto Color Emoji","Segoe UI Emoji",sans-serif;direction:rtl;color:#1e2a3a;min-height:100vh;
+ background:linear-gradient(180deg,#eb5757 0%,#ff9a8b 9%,#fff4ec 22%,#fff4ec 100%);-webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%}
+#app{padding:calc(env(safe-area-inset-top) + 1.4rem) 2.4rem 3rem;max-width:72rem;margin:0 auto}
+.hidden{display:none!important}
+.card{background:#fff;border-radius:1.6rem;box-shadow:0 .25rem .75rem rgba(0,0,0,.08);padding:1rem 1.3rem;margin-bottom:1.2rem}
+.top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+.date{flex:1;font-size:3.5rem;font-weight:800;color:#fff;text-align:center;text-shadow:0 .15rem .4rem rgba(0,0,0,.2);line-height:1.1}
+.arrow{font:inherit;font-size:3rem;line-height:1;width:5.6rem;height:5.6rem;border-radius:50%;border:none;background:#fff;color:#c0392b;box-shadow:0 .2rem .6rem rgba(0,0,0,.15);flex:none}
+.arrow:active{transform:scale(.92)}
+.today-btn{font:inherit;font-size:1.8rem;font-weight:800;background:#ffcf4a;color:#6b4a00;border:none;border-radius:999px;padding:.5rem 1.4rem;display:block;margin:-.4rem auto 1rem}
+.hello{display:flex;align-items:center;gap:1.2rem;background:#fff;border-radius:1.6rem;padding:1rem 1.6rem;box-shadow:0 .25rem .75rem rgba(0,0,0,.08);margin-bottom:1.2rem;border:.3rem solid #ffb3a7}
+.hello .face{font-size:6rem;line-height:1}
+.hello .g{flex:1;font-size:3.6rem;font-weight:900;color:#c0392b;line-height:1.15}
+.hello .clk{font-size:6.2rem;font-weight:900;color:#1e2a3a;direction:ltr;unicode-bidi:isolate;line-height:1}
+.hello .clk .c{animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:.15}}
+.banner{background:#ffcf4a;border:.2rem solid #e8a400;border-radius:1.4rem;font-size:2.5rem;font-weight:800;text-align:center;padding:.8rem 1rem;margin-bottom:1rem}
+.away{background:#e8f1ff;border:.2rem solid #2f6fd6;border-radius:1.4rem;font-size:2.5rem;font-weight:800;text-align:center;padding:.7rem 1rem;margin-bottom:1rem;color:#1d4fa8}
+.h2{font-size:2.4rem;font-weight:900;color:#c0392b;margin-bottom:.7rem}
+.item{display:flex;flex-direction:column;background:#fff1ef;border-radius:1.1rem;padding:.8rem 1.1rem;margin-bottom:.7rem;border-right:.55rem solid #eb5757}
+.item.pickup{background:#fff4d6;border-right-color:#f0a500}
+.time{font-size:2rem;font-weight:800;color:#eb5757;direction:ltr;text-align:right;unicode-bidi:isolate}
+.ttl{font-size:2.5rem;font-weight:800;line-height:1.2;display:flex;align-items:center;flex-wrap:wrap;gap:.5rem}
+.av{width:4rem;height:4rem;border-radius:50%;flex:none}
+.loc{font-size:1.5rem;color:#5b6475;margin-top:.2rem}
+.empty{text-align:center;font-size:2.6rem;font-weight:800;padding:.6rem .3rem;color:#46506a}
+.empty .em{font-size:5.5rem;line-height:1.1}.empty .sub{font-size:1.8rem;font-weight:500;margin-top:.2rem}
+.wxrow{display:flex;gap:1rem}
+.wx{flex:1;display:flex;align-items:center;justify-content:center;gap:1rem;background:#eef4ff;border-radius:1.2rem;padding:.6rem .5rem}
+.wl{font-size:1.8rem;font-weight:700;color:#3d5a99}.we{font-size:4rem;line-height:1}
+.wt{font-size:4rem;font-weight:800;line-height:1;direction:ltr}.wd{font-size:1.6rem}.wr{font-size:1.5rem;color:#2f6fb0}
+.weartitle{font-size:2rem;font-weight:800;margin:.8rem 0 .5rem}
+.chips{display:flex;flex-wrap:wrap;gap:.6rem}
+.chip{background:#e7f8ec;border:.15rem solid #5cc27a;border-radius:999px;font-size:2rem;font-weight:700;padding:.35rem 1.2rem}
+/* checklist */
+.task{display:flex;align-items:center;gap:1.2rem;width:100%;font:inherit;text-align:right;background:#f6f7fb;border:.25rem solid #e3e6ef;border-radius:1.3rem;
+ padding:.9rem 1.2rem;margin-bottom:.8rem;cursor:pointer;transition:background .2s}
+.task .em{font-size:4rem;line-height:1;flex:none}
+.task .tx{flex:1;font-size:2.8rem;font-weight:800;color:#1e2a3a}
+.task .bx{flex:none;width:4.6rem;height:4.6rem;border-radius:1rem;border:.35rem solid #b8c0d4;background:#fff;font-size:3.4rem;line-height:3.9rem;text-align:center;color:#fff}
+.task.done{background:#dff7e8;border-color:#27ae60}
+.task.done .tx{color:#14653a;text-decoration:line-through;text-decoration-thickness:.25rem}
+.task.done .bx{background:#27ae60;border-color:#27ae60}
+.task.special{border-style:dashed;border-color:#f0a500}
+.task.special.done{border-style:solid;border-color:#27ae60}
+.progress{font-size:1.9rem;font-weight:700;color:#5b6475;margin:-.2rem 0 .6rem}
+.yay{background:linear-gradient(90deg,#ffe082,#ffb3a7,#b3e5fc);border-radius:1.3rem;text-align:center;font-size:3rem;font-weight:900;padding:1rem;color:#7a2a1f;animation:pop .6s ease}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+#confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9}
+#confetti span{position:absolute;top:-6rem;font-size:4rem;animation:fall 2.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+/* diary */
+textarea{display:block;width:100%;min-height:12rem;font:inherit;font-size:2.4rem;line-height:1.35;border:.3rem solid #ffb3a7;border-radius:1.2rem;padding:.8rem 1rem;
+ background:#fffdf8;color:#1e2a3a;resize:vertical;-webkit-user-select:text;user-select:text;direction:rtl}
+textarea:focus{outline:none;border-color:#eb5757}
+.btns{display:flex;gap:1rem;margin-top:.9rem}
+.big{flex:1;font:inherit;font-size:2.4rem;font-weight:900;border:none;border-radius:1.2rem;padding:1rem;box-shadow:0 .2rem .6rem rgba(0,0,0,.12)}
+.big:active{transform:scale(.97)}
+.save{background:#27ae60;color:#fff}.read{background:#5b8def;color:#fff}.back{background:#fff;color:#c0392b;border:.25rem solid #eb5757}
+.note{font-size:1.8rem;font-weight:700;margin-top:.6rem;min-height:2.2rem;color:#14653a;text-align:center}
+.entry{background:#fffdf8;border:.2rem solid #ffd9d2;border-radius:1.2rem;padding:.8rem 1.1rem;margin-bottom:.8rem}
+.entry .when{font-size:1.6rem;font-weight:700;color:#c0392b;margin-bottom:.3rem}
+.entry .txt{font-size:2.3rem;line-height:1.35;white-space:pre-wrap;word-break:break-word;-webkit-user-select:text;user-select:text}
+.msg{text-align:center;font-size:2.2rem;font-weight:700;color:#46506a;padding:1rem}
+.foot{text-align:center;font-size:1.1rem;color:#9aa3b2;margin-top:1rem}
+</style>
+</head>
+<body>
+<div id="app">
+ <div id="main">
+  <div class="top"><button class="arrow" id="prev" aria-label="יום קודם">▶</button><div class="date" id="date"></div><button class="arrow" id="next" aria-label="יום הבא">◀</button></div>
+  <button class="today-btn hidden" id="tdy">☀️ חזרה להיום</button>
+  <div class="hello"><div class="face">🦁</div><div class="g">בוקר טוב קוקוס</div><div class="clk" id="clk"></div></div>
+  <div id="special"></div>
+  <div id="weather"></div>
+  <div class="card" id="checks"></div>
+  <div class="card">
+   <div class="h2">✏️ היומן שלי</div>
+   <textarea id="diary" placeholder="מה קרה היום? מה אני רוצה לזכור?"></textarea>
+   <div class="btns"><button class="big save" id="save">💾 שמור</button><button class="big read" id="showd">📖 מה כתבתי</button></div>
+   <div class="note" id="note"></div>
+  </div>
+  <div class="foot" id="foot"></div>
+ </div>
+ <div id="past" class="hidden">
+  <div class="top"><div class="date">📖 מה כתבתי ביומן</div></div>
+  <button class="big back" id="back1" style="width:100%;margin-bottom:1.2rem">⬅️ חזרה</button>
+  <div id="entries"></div>
+  <button class="big back" id="back2" style="width:100%;margin-top:.5rem">⬅️ חזרה</button>
+ </div>
+</div>
+<div id="confetti"></div>
+<script>
+(function(){
+"use strict";
+// ================= DIARY → GOOGLE DRIVE (config) =================
+// Leave DIARY_ENDPOINT empty: entries are saved only on this iPad (localStorage).
+// Option A (Apps Script web app bound to the Sheet "היומן של בן"): paste the .../exec URL, leave DIARY_FIELD empty.
+// Option B (Google Form linked to that Sheet): paste https://docs.google.com/forms/d/e/<id>/formResponse and set DIARY_FIELD="entry.<number>".
+// Both are write-only: nobody can read the diary through them.
+var DIARY_ENDPOINT = "";
+var DIARY_FIELD = "";
+// ==================================================================
+var TZ="Europe/Berlin", LAT=48.137, LON=11.575, BUILD="ben v1 03.11";
+var HEB_DAYS=["יום ראשון","יום שני","יום שלישי","יום רביעי","יום חמישי","יום שישי","שבת"];
+var HEB_MONTHS=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+var WMO={0:["☀️","שמש"],1:["🌤️","בעיקר שמש"],2:["⛅","מעונן חלקית"],3:["☁️","מעונן"],45:["🌫️","ערפל"],48:["🌫️","ערפל קפוא"],
+ 51:["🌦️","טפטוף קל"],53:["🌦️","טפטוף"],55:["🌧️","טפטוף חזק"],56:["🌧️","טפטוף קפוא"],57:["🌧️","טפטוף קפוא"],61:["🌧️","גשם קל"],
+ 63:["🌧️","גשם"],65:["🌧️","גשם חזק"],66:["🌨️","גשם קפוא"],67:["🌨️","גשם קפוא"],71:["🌨️","שלג קל"],73:["❄️","שלג"],75:["❄️","שלג כבד"],
+ 77:["🌨️","פתיתי שלג"],80:["🌦️","ממטרים קלים"],81:["🌧️","ממטרים"],82:["⛈️","ממטרים חזקים"],85:["🌨️","ממטרי שלג"],86:["❄️","ממטרי שלג חזקים"],
+ 95:["⛈️","סופת רעמים"],96:["⛈️","סופת רעמים וברד"],99:["⛈️","סופת רעמים וברד"]};
+var SNOW=[71,73,75,77,85,86];
+
+// ---- time: always Munich wall clock. Test hook: ?now=YYYY-MM-DDTHH:MM simulates a Munich time ----
+var q=new URLSearchParams(location.search), simOffset=0;
+var fmt=new Intl.DateTimeFormat("en-GB",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false});
+function pad(n){return (n<10?"0":"")+n;}
+function munichParts(ms){var o={};fmt.formatToParts(new Date(ms)).forEach(function(p){o[p.type]=p.value;});
+ if(o.hour==="24")o.hour="00";return {date:o.year+"-"+o.month+"-"+o.day,h:+o.hour,m:+o.minute,s:+o.second};}
+if(q.get("now")){var w0=q.get("now"),guess=Date.parse(w0+":00Z"),p0=munichParts(guess);
+ var diff=(Date.parse(p0.date+"T"+pad(p0.h)+":"+pad(p0.m)+":00Z")-guess);simOffset=guess-diff-Date.now();}
+function nowMs(){return Date.now()+simOffset;}
+function now(){return munichParts(nowMs());}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function dObj(iso){var a=iso.split("-");return new Date(Date.UTC(+a[0],a[1]-1,+a[2]));}
+function addDays(iso,n){var d=dObj(iso);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
+function dateTxt(iso){var d=dObj(iso);return HEB_DAYS[d.getUTCDay()]+", "+d.getUTCDate()+" ב"+HEB_MONTHS[d.getUTCMonth()];}
+function weekday(iso){return dObj(iso).getUTCDay();} // 0=Sun … 4=Thu, 5=Fri
+function stampTxt(ms){var p=munichParts(ms);var d=dObj(p.date);return HEB_DAYS[d.getUTCDay()]+" "+d.getUTCDate()+"."+(d.getUTCMonth()+1)+"."+d.getUTCFullYear()+" · "+pad(p.h)+":"+pad(p.m);}
+
+// ---- Ben's data (../ben.json every 5 min, last good copy kept for offline) ----
+var DATA=null, WX={}, WXSTAT="טוען…", shown=null, lastDate=null;
+try{DATA=JSON.parse(localStorage.getItem("kb-ben-data")||"null");}catch(e){}
+function loadData(){
+ return fetch("../ben.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw r.status;return r.json();})
+ .then(function(j){DATA=j;try{localStorage.setItem("kb-ben-data",JSON.stringify(j));}catch(e){}render();})
+ .catch(function(){render();});
+}
+function dayData(iso){if(!DATA||!DATA.days)return null;for(var i=0;i<DATA.days.length;i++)if(DATA.days[i].date===iso)return DATA.days[i];return null;}
+
+// ---- weather: live Open-Meteo (12s timeout, retry in 1 min), else the nightly forecast baked into ben.json; never invented ----
+function loadWeather(iso){
+ if(WX["_l"+iso])return; WX["_l"+iso]=1;
+ var url="https://api.open-meteo.com/v1/forecast?latitude="+LAT+"&longitude="+LON+
+  "&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weather_code"+
+  "&timezone=Europe%2FBerlin&start_date="+iso+"&end_date="+iso;
+ var ctl=window.AbortController?new AbortController():null; if(ctl)setTimeout(function(){ctl.abort();},12000);
+ fetch(url,ctl?{signal:ctl.signal,cache:"no-store"}:{cache:"no-store"}).then(function(r){if(!r.ok)throw r.status;return r.json();}).then(function(j){
+  var h=j.hourly, rows=h.time.map(function(t,i){return {hour:+t.slice(11,13),temp:h.temperature_2m[i],feels:h.apparent_temperature[i],
+   pop:h.precipitation_probability[i]||0,mm:h.precipitation[i]||0,code:h.weather_code[i]};}).filter(function(r){return r.temp!=null;});
+  if(!rows.length)throw "empty";
+  function win(a,b){var rs=rows.filter(function(r){return r.hour>=a&&r.hour<=b;});if(!rs.length)rs=rows;
+   return {temp:Math.round(rs.reduce(function(s,r){return s+r.temp;},0)/rs.length),pop:Math.max.apply(null,rs.map(function(r){return r.pop;})),
+    mm:Math.round(rs.reduce(function(s,r){return s+r.mm;},0)*10)/10,code:Math.max.apply(null,rs.map(function(r){return r.code;}))};}
+  var dr=rows.filter(function(r){return r.hour>=7&&r.hour<=18;});if(!dr.length)dr=rows;
+  WXSTAT="חי "+new Date().toTimeString().slice(0,5);
+  WX[iso]={at:Date.now(),morning:win(7,8),afternoon:win(15,16),
+   tmin:Math.round(Math.min.apply(null,dr.map(function(r){return r.temp;}))),tmax:Math.round(Math.max.apply(null,dr.map(function(r){return r.temp;}))),
+   feels_min:Math.min.apply(null,dr.map(function(r){return r.feels;})),pop_max:Math.max.apply(null,dr.map(function(r){return r.pop;})),
+   mm_sum:Math.round(dr.reduce(function(s,r){return s+r.mm;},0)*10)/10,snow:dr.some(function(r){return SNOW.indexOf(r.code)>=0;})};
+  render();
+ }).catch(function(e){WXSTAT="שגיאה: "+(e&&(e.name||e.message)||e);
+  if(WX[iso]&&Date.now()-WX[iso].at>3*3600e3)delete WX[iso];
+  setTimeout(function(){delete WX["_l"+iso];render();},60e3); render();});
+}
+function clothing(w){ // same rules as kids/index.html (and generate.py clothing())
+ var f=w.feels_min,t=w.tmin,out=[];
+ if(f<0||t<0)out.push(["🧥","מעיל חורף חם"],["🧣","צעיף"],["🧤","כפפות"],["🧶","כובע צמר"]);
+ else if(t<5||f<3)out.push(["🧥","מעיל חם"],["🧶","כובע צמר"],["🧤","כפפות"]);
+ else if(t<10)out.push(["🧥","מעיל / ג׳קט"]);
+ else if(t<16)out.push(["🧶","סווטשירט או ג׳קט קל"]);
+ else if(w.tmax>=22)out.push(["👕","בגדים קלים"]);
+ else out.push(["👕","חולצה + שכבה דקה"]);
+ if(w.snow)out.push(["🥾","מגפי שלג"]);
+ if(w.pop_max>=50||w.mm_sum>=1){ if(!w.snow)out.push(["🧥","מעיל גשם"],["🥾","מגפי גשם"]); else out.push(["☔","מעיל עמיד למים"]); }
+ else if(w.pop_max>=30||w.mm_sum>=0.3)out.push(["☂️","מעיל גשם בתיק, ליתר ביטחון"]);
+ if(w.tmax>=24&&w.pop_max<30)out.push(["🧴","קרם הגנה"],["👒","כובע שמש"]);
+ var seen={};return out.filter(function(x){if(seen[x[1]])return false;seen[x[1]]=1;return true;});
+}
+function wxCell(label,x){var e=WMO[x.code]||["🌡️",""];
+ return '<div class="wx"><div><div class="wl">'+label+'</div><div class="wd">'+e[1]+'</div><div class="wr">💧 '+x.pop+'%'+(x.mm>=0.1?' · '+x.mm.toFixed(1)+' מ״מ':'')+
+  '</div></div><div class="we">'+e[0]+'</div><div class="wt">'+x.temp+'°</div></div>';}
+
+// ---- what's special on the shown day ----
+function avatarSrc(a){return /^(https?:|\/|\.\.\/)/.test(a)?a:"../"+a;} // ben.json paths are relative to kids/
+function itemHtml(it){
+ return '<div class="item '+esc(it.kind)+'">'+(it.time&&it.time!=="כל היום"?'<div class="time">'+esc(it.time)+'</div>':'')+
+  '<div class="ttl">'+(it.avatar?'<img class="av" src="'+esc(avatarSrc(it.avatar))+'" alt="">':'')+(it.icon?'<span>'+it.icon+'</span>':'')+esc(it.title)+'</div>'+
+  (it.loc?'<div class="loc">📍 '+esc(it.loc)+'</div>':'')+'</div>';
+}
+function renderSpecial(iso){
+ var dd=dayData(iso), el=document.getElementById("special"), h="";
+ if(!dd){el.innerHTML='<div class="card"><div class="msg">🤷 אין עדיין מידע ליום הזה – הלוח יתעדכן לבד</div></div>';return dd;}
+ var awayLbl=(dd.away||{}).ben;
+ if(awayLbl)h+='<div class="away">'+esc(awayLbl)+'</div>';
+ (dd.banners||[]).forEach(function(b){h+='<div class="banner">'+esc(b)+'</div>';});
+ var items=(dd.kids&&dd.kids.ben)||[], parts=items.map(itemHtml).join("");
+ if(!parts){var m=awayLbl?[awayLbl.split(" ")[0],awayLbl.split(" ").slice(1).join(" "),"אין משהו מיוחד ביומן"]:
+   (dd.holiday||dd.weekend)?["🎉","יום חופש!","זמן לשחק ולנוח"]:["😊","יום רגיל","אין משהו מיוחד ביומן – יום רגיל ונעים"];
+  parts='<div class="empty"><div class="em">'+m[0]+'</div><div>'+esc(m[1])+'</div><div class="sub">'+esc(m[2])+'</div></div>';}
+ h+='<div class="card"><div class="h2">⭐ מה מיוחד היום?</div>'+parts+'</div>';
+ el.innerHTML=h; return dd;
+}
+function renderWeather(iso,dd){
+ var el=document.getElementById("weather"), w=WX[iso]||(dd&&dd.weather)||null;
+ if(!dd||dd.show_weather===false||!w){el.innerHTML="";return;}
+ el.innerHTML='<div class="card"><div class="wxrow">'+wxCell("🌅 בבוקר",w.morning)+wxCell("☀️ אחה״צ",w.afternoon)+'</div>'+
+  '<div class="weartitle">👗 מה ללבוש היום?</div><div class="chips">'+clothing(w).map(function(c){return '<span class="chip">'+c[0]+' '+esc(c[1])+'</span>';}).join("")+'</div></div>';
+}
+
+// ---- daily checklist (today's Munich date; resets every morning) ----
+function tasksFor(iso){
+ var t=[["eat","🥣","לאכול"],["dress","👕","להתלבש"],["teeth","🪥","לצחצח שיניים"],["kiss","😘","לתת נשיקה לאבא ואמא"]], wd=weekday(iso);
+ if(wd===4)t.push(["lunch","🍱","לקחת קופסת אוכל וקלסר",1]);   // Thursday only
+ if(wd===5)t.push(["toy","🧸","לקחת צעצוע",1]);                  // Friday only
+ return t;
+}
+function ckKey(iso){return "ben-check-"+iso;}
+function getChecks(iso){try{return JSON.parse(localStorage.getItem(ckKey(iso))||"{}");}catch(e){return {};}}
+function cleanupChecks(iso){try{for(var i=localStorage.length-1;i>=0;i--){var k=localStorage.key(i);if(k&&k.indexOf("ben-check-")===0&&k!==ckKey(iso))localStorage.removeItem(k);}}catch(e){}}
+var celebrated=null;
+function renderChecks(){
+ var iso=now().date, ts=tasksFor(iso), ck=getChecks(iso), done=0, h='<div class="h2">✅ המשימות שלי היום</div>';
+ ts.forEach(function(t){var on=!!ck[t[0]];if(on)done++;
+  h+='<button class="task'+(on?" done":"")+(t[3]?" special":"")+'" data-task="'+t[0]+'"><span class="em">'+t[1]+'</span><span class="tx">'+esc(t[2])+'</span><span class="bx">'+(on?"✓":"")+'</span></button>';});
+ h+='<div class="progress">'+(done===ts.length?"":"עשיתי "+done+" מתוך "+ts.length+" ⭐")+'</div>';
+ if(done===ts.length)h+='<div class="yay">🎉 כל הכבוד קוקוס! סיימת הכול! 🦁⭐</div>';
+ document.getElementById("checks").innerHTML=h;
+ return done===ts.length;
+}
+function toggleTask(id){
+ var iso=now().date, ck=getChecks(iso); ck[id]=!ck[id]; if(!ck[id])delete ck[id];
+ try{localStorage.setItem(ckKey(iso),JSON.stringify(ck));}catch(e){}
+ if(renderChecks()&&celebrated!==iso){celebrated=iso;confetti();}
+}
+function confetti(){var c=document.getElementById("confetti"),em=["🎉","⭐","🦁","🎈","✨","🥳"];c.innerHTML="";
+ for(var i=0;i<26;i++){var s=document.createElement("span");s.textContent=em[i%em.length];s.style.left=(Math.random()*95)+"%";
+  s.style.animationDelay=(Math.random()*.8)+"s";c.appendChild(s);} setTimeout(function(){c.innerHTML="";},4000);}
+
+// ---- diary: saved on this iPad, copy sent (write-only) to Drive when configured ----
+function getDiary(){try{return JSON.parse(localStorage.getItem("ben-diary")||"[]");}catch(e){return [];}}
+function putDiary(a){try{localStorage.setItem("ben-diary",JSON.stringify(a));return true;}catch(e){return false;}}
+function sendEntry(e){
+ if(!DIARY_ENDPOINT)return Promise.reject("no endpoint");
+ var opt;
+ if(DIARY_FIELD){var fd=new URLSearchParams();fd.append(DIARY_FIELD,e.txt+"\n— "+stampTxt(e.ts)+" ["+e.id+"]");
+  opt={method:"POST",mode:"no-cors",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:fd.toString()};}
+ else opt={method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({id:e.id,ts:e.ts,when:stampTxt(e.ts),text:e.txt})};
+ return fetch(DIARY_ENDPOINT,opt);
+}
+var syncing=false;
+function syncDiary(){
+ if(!DIARY_ENDPOINT||syncing)return; var a=getDiary(), todo=a.filter(function(e){return !e.synced;}); if(!todo.length)return;
+ syncing=true;
+ todo.reduce(function(p,e){return p.then(function(){return sendEntry(e).then(function(){
+  var b=getDiary();b.forEach(function(x){if(x.id===e.id)x.synced=true;});putDiary(b);});});},Promise.resolve())
+ .catch(function(){}).then(function(){syncing=false;});
+}
+function saveDiary(){
+ var ta=document.getElementById("diary"), txt=ta.value.trim(), note=document.getElementById("note");
+ if(!txt){note.textContent="✏️ קודם כותבים משהו…";return;}
+ var e={id:nowMs().toString(36)+Math.random().toString(36).slice(2,6),ts:nowMs(),txt:txt,synced:false}, a=getDiary(); a.push(e);
+ if(!putDiary(a)){note.textContent="😕 לא הצלחתי לשמור";return;}
+ ta.value=""; ta.blur(); note.textContent="✅ נשמר ביומן! כל הכבוד קוקוס";
+ setTimeout(function(){note.textContent="";},4000);
+ syncDiary();
+}
+function showPast(){
+ var a=getDiary().slice().sort(function(x,y){return y.ts-x.ts;}), h="";
+ if(!a.length)h='<div class="card"><div class="msg">📭 עוד לא כתבת כלום ביומן</div></div>';
+ a.forEach(function(e){h+='<div class="entry"><div class="when">🗓️ '+esc(stampTxt(e.ts))+'</div><div class="txt">'+esc(e.txt)+'</div></div>';});
+ document.getElementById("entries").innerHTML=h;
+ document.getElementById("main").classList.add("hidden");document.getElementById("past").classList.remove("hidden");window.scrollTo(0,0);
+}
+function hidePast(){document.getElementById("past").classList.add("hidden");document.getElementById("main").classList.remove("hidden");window.scrollTo(0,0);}
+
+// ---- render ----
+function render(){
+ var t=now(); if(!shown)shown=t.date;
+ if(lastDate&&lastDate!==t.date){ if(shown===lastDate)shown=t.date; cleanupChecks(t.date); }
+ lastDate=t.date;
+ var dd=dayData(shown);
+ document.getElementById("date").textContent=dd&&dd.date_txt?dd.date_txt:dateTxt(shown);
+ document.getElementById("tdy").classList.toggle("hidden",shown===t.date);
+ renderSpecial(shown); loadWeather(shown); renderWeather(shown,dd); renderChecks(); tick();
+ var g=DATA&&DATA.generated?DATA.generated.slice(8,10)+"."+DATA.generated.slice(5,7)+" "+DATA.generated.slice(11,16):"—";
+ document.getElementById("foot").textContent="לו״ז עודכן "+g+" · מזג אוויר: "+(WX[shown]?"Open-Meteo "+WXSTAT:(dd&&dd.weather?"תחזית גיבוי ("+WXSTAT+")":"אין ("+WXSTAT+")"))+" · "+BUILD;
+}
+function tick(){
+ var t=now(); if(lastDate&&t.date!==lastDate){render();return;}
+ document.getElementById("clk").innerHTML=pad(t.h)+'<span class="c">:</span>'+pad(t.m);
+}
+document.addEventListener("click",function(e){
+ var b=e.target.closest&&e.target.closest("button"); if(!b)return;
+ if(b.dataset.task){toggleTask(b.dataset.task);return;}
+ switch(b.id){
+  case "prev":shown=addDays(shown,-1);render();break;
+  case "next":shown=addDays(shown,1);render();break;
+  case "tdy":shown=now().date;render();break;
+  case "save":saveDiary();break;
+  case "showd":showPast();break;
+  case "back1":case "back2":hidePast();break;
+ }
+});
+document.addEventListener("visibilitychange",function(){if(!document.hidden){loadData();var d=now().date;delete WX["_l"+d];delete WX[d];render();syncDiary();}});
+window.addEventListener("online",syncDiary);
+// test hook for automated checks: window.__ben.tasksFor("2026-11-05")
+window.__ben={tasksFor:tasksFor,clothing:clothing,now:now};
+
+cleanupChecks(now().date);
+render(); loadData(); syncDiary();
+setInterval(tick,1000);
+setInterval(loadData,5*60e3);
+setInterval(function(){delete WX["_l"+shown];loadWeather(shown);},30*60e3);
+})();
+</script>
+</body>
+</html>
