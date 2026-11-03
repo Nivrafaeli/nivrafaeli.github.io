@@ -19,6 +19,8 @@ body{font-family:Rubik,"Apple Color Emoji","Noto Color Emoji","Segoe UI Emoji",s
  min-height:100%;background:linear-gradient(180deg,#5b8def 0%,#8fb4ff 9%,#fdf6ec 20%,#fdf6ec 100%);
  overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%}
 #app{position:fixed;inset:0;padding:calc(env(safe-area-inset-top) + 1.6rem) 2.6rem 2.6rem;overflow:hidden}
+#app.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
+#board{transform-origin:top center}
 .view{transform-origin:top center}
 .hidden{display:none!important}
 .top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.2rem}
@@ -80,17 +82,83 @@ h1{font-size:3rem;font-weight:900;text-align:center;margin-bottom:.6rem;color:#f
 .li b{color:var(--c);direction:ltr;unicode-bidi:isolate}.li.pickup{color:#a86b00}.li.none{color:#9aa3b2}
 .sav{width:2rem;height:2rem;border-radius:50%}
 .msg{background:#fff;border-radius:1.6rem;padding:2rem;text-align:center;font-size:2.2rem;font-weight:700;color:#46506a}
+/* v2: morning bar + full-screen alert */
+.mbar{border-radius:1.6rem;padding:.9rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;box-shadow:0 .25rem .75rem rgba(0,0,0,.08)}
+.mbar.early{background:#fff;border:.25rem dashed #5b8def}.mbar.early .mt{font-size:1.9rem;font-weight:700;color:#3d5a99;flex:1}
+.mbar.warn{background:#ffe7b3;border:.35rem solid #f0a500;animation:pulse 1s ease-in-out infinite}
+.mbar.warn .mt{flex:1;font-size:4.2rem;font-weight:900;color:#8a4b00;line-height:1.1}
+.mbar.done{background:#dff7e8;border:.25rem solid #27ae60}.mbar.done .mt{font-size:2.2rem;font-weight:800;color:#14653a;flex:1}
+.mbar .mt small{display:block;font-size:1.8rem;font-weight:700}
+@keyframes pulse{50%{transform:scale(1.02)}}
+.snd{font:inherit;font-size:2.4rem;font-weight:900;background:#5b8def;color:#fff;border:none;border-radius:1.2rem;padding:.8rem 1.4rem;box-shadow:0 .2rem .6rem rgba(0,0,0,.15);flex:none}
+#alert{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.4rem;padding:3rem;text-align:center;
+ animation:flash .7s steps(1) infinite;-webkit-user-select:none;user-select:none}
+@keyframes flash{0%{background:#eb3b3b}50%{background:#ffcf4a}}
+#alert .run{font-size:12rem;line-height:1;animation:pulse .7s ease-in-out infinite}
+#alert .at{font-size:6.4rem;font-weight:900;color:#fff;text-shadow:0 .3rem .8rem rgba(0,0,0,.45);line-height:1.15}
+#alert .as{font-size:3rem;font-weight:800;color:#fff;text-shadow:0 .2rem .5rem rgba(0,0,0,.4)}
+#alert .ok{font:inherit;font-size:5.2rem;font-weight:900;background:#fff;color:#14653a;border:.6rem solid #27ae60;border-radius:2.4rem;padding:1.6rem 4rem;box-shadow:0 .6rem 1.6rem rgba(0,0,0,.3)}
+#alert .snd{font-size:3rem}
+/* v2: checklist + writing area (below the board; scroll down) */
+#extras{padding-bottom:3rem}
+.card{background:#fff;border-radius:1.6rem;padding:1.2rem 1.4rem;box-shadow:0 .25rem .75rem rgba(0,0,0,.08);margin-bottom:1.3rem;border-top:.7rem solid #2f80ed}
+.h2{font-size:3rem;font-weight:900;color:#2f80ed;margin-bottom:.9rem}
+.task{display:flex;align-items:center;gap:1.2rem;width:100%;font:inherit;text-align:right;background:#f6f7fb;border:.25rem solid #e3e6ef;border-radius:1.3rem;padding:.9rem 1.2rem;margin-bottom:.8rem;cursor:pointer}
+.task .em{font-size:4rem;line-height:1;flex:none}
+.task .tx{flex:1;font-size:2.8rem;font-weight:800;color:#1e2a3a}
+.task .bx{flex:none;width:4.6rem;height:4.6rem;border-radius:1rem;border:.35rem solid #b8c0d4;background:#fff;font-size:3.4rem;line-height:3.9rem;text-align:center;color:#fff}
+.task.done{background:#dff7e8;border-color:#27ae60}.task.done .tx{color:#14653a;text-decoration:line-through;text-decoration-thickness:.25rem}
+.task.done .bx{background:#27ae60;border-color:#27ae60}
+.task.special{border-style:dashed;border-color:#f0a500}.task.special.done{border-style:solid;border-color:#27ae60}
+.progress{font-size:1.9rem;font-weight:700;color:#5b6475;margin:-.2rem 0 .2rem}
+.yay{background:linear-gradient(90deg,#b3e5fc,#c8f7c5,#ffe082);border-radius:1.3rem;text-align:center;font-size:3rem;font-weight:900;padding:1rem;color:#1d4fa8}
+textarea{display:block;width:100%;min-height:11rem;font:inherit;font-size:2.4rem;line-height:1.35;border:.3rem solid #9cc0f5;border-radius:1.2rem;padding:.8rem 1rem;
+ background:#fbfdff;color:#1e2a3a;resize:vertical;-webkit-user-select:text;user-select:text;direction:rtl}
+textarea:focus{outline:none;border-color:#2f80ed}
+.btns{display:flex;gap:1rem;margin-top:.9rem}
+.big{flex:1;font:inherit;font-size:2.4rem;font-weight:900;border:none;border-radius:1.2rem;padding:1rem;box-shadow:0 .2rem .6rem rgba(0,0,0,.12)}
+.big:active{transform:scale(.97)}.save{background:#27ae60;color:#fff}.read{background:#5b8def;color:#fff}
+.note{font-size:1.8rem;font-weight:700;margin-top:.6rem;min-height:2.2rem;color:#14653a;text-align:center}
+.entry{background:#fbfdff;border:.2rem solid #cfe0fb;border-radius:1.2rem;padding:.8rem 1.1rem;margin-top:.8rem}
+.entry .row2{display:flex;align-items:flex-start;gap:1rem}.entry .bd{flex:1;min-width:0}
+.entry .when{font-size:1.6rem;font-weight:700;color:#2f6fd6;margin-bottom:.3rem}
+.entry .txt{font-size:2.3rem;line-height:1.35;white-space:pre-wrap;word-break:break-word;-webkit-user-select:text;user-select:text}
+.del{font:inherit;flex:none;font-size:2rem;font-weight:800;background:#fff;color:#c0392b;border:.25rem solid #f3b0a8;border-radius:1.1rem;padding:.5rem .9rem;display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.del .re{font-size:3rem}
+.ask{display:flex;align-items:center;gap:.8rem;margin-top:.7rem;background:#fff1ef;border-radius:1rem;padding:.6rem .8rem}
+.ask .q{flex:1;font-size:2.4rem;font-weight:900;color:#c0392b}
+.yes,.no{font:inherit;font-size:2.2rem;font-weight:900;border:none;border-radius:1rem;padding:.6rem 1.4rem}
+.yes{background:#eb5757;color:#fff}.no{background:#e3e6ef;color:#1e2a3a}
+.empty2{text-align:center;font-size:2.2rem;font-weight:700;color:#46506a;padding:1rem}
 </style>
 </head>
 <body>
 <div id="app">
- <div id="day" class="view"></div>
+ <div id="day" class="view">
+  <div id="board"></div>
+  <div id="extras">
+   <div class="card" id="checks"></div>
+   <div class="card">
+    <div class="h2">✏️ הדף שלי</div>
+    <textarea id="diary" placeholder="מה קרה היום? מה אני רוצה לזכור?"></textarea>
+    <div class="btns"><button class="big save" id="save">💾 שמור</button><button class="big read" id="showd">📖 מה כתבתי</button></div>
+    <div class="note" id="note"></div>
+    <div id="entries" class="hidden"></div>
+   </div>
+  </div>
+ </div>
  <div id="week" class="view hidden"></div>
 </div>
 <div class="foot" id="foot"></div>
+<div id="alert" class="hidden"><div class="run">🏃</div><div class="at">צריך להתחיל למהר!</div><div class="as" id="alsub"></div>
+ <button class="snd hidden" id="snd2">הפעל צליל 🔔</button><button class="ok" id="dismiss">אני בדרך! ✋</button></div>
 <script>
 (function(){
 "use strict";
+// ================= WRITING AREA → GOOGLE SHEET (same write-only Apps Script web app as Ben; kid:"noam" → "היומן של נועם") =================
+var DIARY_ENDPOINT = "https://script.google.com/macros/s/AKfycbwijY_uMoVurCDfsgYe0QYST0CEUdnr5VNAxmf-FLuR6TQY61j-Yly9vASkkiXU5Q4Fdw/exec";
+// Morning alert (Munich time, school days only): countdown from ALERT_AT-WARN_MIN, full-screen alert at ALERT_AT until "אני בדרך!".
+var ALERT_AT = "07:15", WARN_MIN = 5;
 var TZ="Europe/Berlin", LAT=48.137, LON=11.575;
 var HEB_DAYS=["יום ראשון","יום שני","יום שלישי","יום רביעי","יום חמישי","יום שישי","שבת"]; // JS getDay order
 var HEB_MONTHS=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
@@ -109,7 +177,8 @@ function munichParts(ms){var o={};fmt.formatToParts(new Date(ms)).forEach(functi
 if(q.get("now")){ // treat as Munich wall time: find the UTC ms that shows that wall time
  var w=q.get("now"), guess=Date.parse(w+":00Z"); var p=munichParts(guess);
  var diff=(Date.parse(p.date+"T"+pad(p.h)+":"+pad(p.m)+":00Z")-guess); simOffset=guess-diff-Date.now();}
-function now(){return munichParts(Date.now()+simOffset);}
+function nowMs(){return Date.now()+simOffset;}
+function now(){return munichParts(nowMs());}
 function pad(n){return (n<10?"0":"")+n;}
 function hm(min){min=((min%1440)+1440)%1440;return pad(Math.floor(min/60))+":"+pad(min%60);}
 function toMin(s){var a=s.split(":");return +a[0]*60+ +a[1];}
@@ -119,7 +188,7 @@ function addDays(iso,n){var d=dObj(iso);d.setUTCDate(d.getUTCDate()+n);return d.
 function dateTxt(iso){var d=dObj(iso);return HEB_DAYS[d.getUTCDay()]+", "+d.getUTCDate()+" ב"+HEB_MONTHS[d.getUTCMonth()];}
 
 // ---- data.json (every 5 min, cache-busted; last good copy kept for offline) ----
-var DATA=null, WXSTAT="טוען…", BUILD="v3 02.11", WX={}, WEEKWX=null, lastDate=null, view="day";
+var DATA=null, WXSTAT="טוען…", BUILD="noam v2 03.11", WX={}, WEEKWX=null, lastDate=null, view="day";
 try{DATA=JSON.parse(localStorage.getItem("kb-data")||"null");}catch(e){}
 function loadData(){
  return fetch("data.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw r.status;return r.json();})
@@ -194,21 +263,21 @@ function clockHtml(){return '<div class="clock" id="clock"><div class="now"><div
  '<div class="arrive" id="arr"><div class="ic"><span>🚶‍♂️</span><span class="ar">⬅️</span><span>🏫</span></div><div class="tx"><div class="who">🦊 נועם</div>'+
  '<div class="l">אם תצא עכשיו תגיע לבית הספר בשעה:</div><div class="v" id="arrv"></div><div id="cd"></div></div></div></div>';}
 function renderDay(t){
- var dd=dayData(t.date), el=document.getElementById("day");
+ var dd=dayData(t.date), el=document.getElementById("board");
  var h='<div class="top"><div class="date">'+esc(dateTxt(t.date))+'</div><button class="btn" id="tw">📅 כל השבוע</button></div>';
  if(!dd){el.innerHTML=h+clockHtml()+'<div class="msg">🤷 אין עדיין מידע ליום הזה – הלוח יתעדכן לבד</div>';tick();return;}
  var aw=dd.away||{}, lbls=[];Object.keys(aw).forEach(function(k){if(lbls.indexOf(aw[k])<0)lbls.push(aw[k]);});
  if(lbls.length){var who=(aw.noam&&aw.ben)?"":" ("+Object.keys(aw).map(function(k){return k==="noam"?"נועם":"בן";}).join(", ")+")";
   h+='<div class="away">'+esc(lbls.join(" / ")+who)+'</div>';}
  dd.banners.forEach(function(b){h+='<div class="banner">'+esc(b)+'</div>';});
- if(!aw.noam)h+=clockHtml();
+ if(!aw.noam)h+='<div id="mbar"></div>'+clockHtml();
  var w=WX[t.date]||dd.weather||null; /* live first, else the nightly forecast in data.json */
  if(dd.show_weather&&w){
   h+='<div class="weather"><div class="wxrow">'+wxCell("🌅 בבוקר",w.morning)+wxCell("🏫 אחה״צ",w.afternoon)+'</div>'+
    '<div class="weartitle">👗 מה ללבוש היום?</div><div class="chips">'+clothing(w).map(function(c){return '<span class="chip">'+c[0]+' '+esc(c[1])+'</span>';}).join("")+'</div></div>';
  }
  h+='<div class="cols">'+kidCol("נועם","🦊","#2f80ed",dd.kids.noam,dd,aw.noam)+kidCol("בן","🦁","#eb5757",dd.kids.ben,dd,aw.ben)+'</div>';
- el.innerHTML=h; tick();
+ el.innerHTML=h; mKey=null; tick();
 }
 // ---- render: week (Mon–Sun; on Sunday the coming week, like the PNG) ----
 function renderWeek(t){
@@ -230,14 +299,18 @@ function renderWeek(t){
  document.getElementById("week").innerHTML='<div class="top"><h1>📅 השבוע: '+a.getUTCDate()+"."+(a.getUTCMonth()+1)+" – "+b.getUTCDate()+"."+(b.getUTCMonth()+1)+
   '</h1><button class="btn" id="tdy">☀️ היום</button></div><div class="heads"><div style="color:#2f80ed">🦊 נועם</div><div style="color:#eb5757">🦁 בן</div></div>'+rows;
 }
-function fit(){ // shrink to fit the screen, never scroll
- ["day","week"].forEach(function(id){var el=document.getElementById(id);el.style.transform="";if(el.classList.contains("hidden"))return;
-  var app=document.getElementById("app"), cs=getComputedStyle(app), avail=app.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
-  var hgt=el.scrollHeight; if(hgt>avail){var s=avail/hgt;el.style.transform="scale("+s.toFixed(3)+")";}});
+function fit(){ // the board (and the week) shrink to fit the screen; checklist + writing area sit below the board (scroll down)
+ var app=document.getElementById("app"), cs=getComputedStyle(app), avail=app.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
+ var rem=parseFloat(getComputedStyle(document.documentElement).fontSize)||16;
+ app.classList.toggle("scroll",view==="day");
+ [["board","day",avail-5*rem],["week","week",avail]].forEach(function(x){var el=document.getElementById(x[0]);el.style.transform="";el.style.marginBottom="";
+  if(view!==x[1])return;
+  var hgt=el.scrollHeight; if(hgt>x[2]){var s=x[2]/hgt;el.style.transform="scale("+s.toFixed(3)+")";el.style.marginBottom=(-(hgt*(1-s))).toFixed(1)+"px";}});
 }
 function render(){
  var t=now(); lastDate=t.date;
  if(!WX[t.date]&&!WX["_l"+t.date]){WX["_l"+t.date]=1;loadWeather(t.date);}
+ if(ckDate!==t.date){ckDate=t.date;cleanupDaily(t.date);renderChecks();}
  renderDay(t); renderWeek(t);
  document.getElementById("day").classList.toggle("hidden",view!=="day");
  document.getElementById("week").classList.toggle("hidden",view!=="week");
@@ -248,6 +321,7 @@ function render(){
 // ---- every second: clocks, countdown, midnight switch ----
 function tick(){
  var t=now(); if(lastDate&&t.date!==lastDate){render();return;}
+ morningTick(t);
  var nm=t.h*60+t.m, nv=document.getElementById("nowv"); if(!nv)return;
  nv.textContent=pad(t.h)+":"+pad(t.m);
  document.getElementById("arrv").textContent=hm(nm+travel());
@@ -261,18 +335,157 @@ function tick(){
  }
  cd.className=cls?"cd "+cls:""; cd.textContent=txt; arr.classList.toggle("late",cls==="late");
 }
+
+// ================= v2: morning alert =================
+var mKey=null, actx=null, beepTimer=null;
+function alertKey(iso){return "noam-alert-ok-"+iso;}
+function dismissed(iso){try{return localStorage.getItem(alertKey(iso))==="1";}catch(e){return false;}}
+function morningState(t){ // null | early | warn | alert | done   (school days only, from the existing data)
+ var dd=dayData(t.date); if(!dd||!dd.noam_school)return null;
+ var nm=t.h*60+t.m, at=toMin(ALERT_AT), end=toMin(dd.school_start||"08:00");
+ if(nm<6*60||nm>=end)return null;
+ if(nm<at-WARN_MIN)return "early";
+ if(nm<at)return "warn";
+ return dismissed(t.date)?"done":"alert";
+}
+function audioOn(){return !!(actx&&actx.state==="running");}
+function beep(f,dur,delay){if(!audioOn())return;try{var t0=actx.currentTime+(delay||0),o=actx.createOscillator(),g=actx.createGain();
+ o.type="square";o.frequency.value=f;g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(0.35,t0+0.02);
+ g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);o.connect(g);g.connect(actx.destination);o.start(t0);o.stop(t0+dur+0.05);}catch(e){}}
+function unlockAudio(confirmBeep){
+ try{var C=window.AudioContext||window.webkitAudioContext; if(!C)return; if(!actx)actx=new C();
+  var p=actx.resume&&actx.resume(); var done=function(){if(audioOn()){try{sessionStorage.setItem("noam-audio","1");}catch(e){} if(confirmBeep)beep(880,.15,0);} mKey=null;morningTick(now());};
+  if(p&&p.then)p.then(done,done);else done();
+ }catch(e){}
+}
+function alarmCycle(){beep(880,.22,0);beep(1175,.22,.3);beep(880,.22,.6);
+ if(navigator.vibrate){try{navigator.vibrate([400,150,400]);}catch(e){}}}
+function setAlarm(on){
+ var el=document.getElementById("alert"); el.classList.toggle("hidden",!on);
+ if(on&&!beepTimer){alarmCycle();beepTimer=setInterval(alarmCycle,1500);}
+ if(!on&&beepTimer){clearInterval(beepTimer);beepTimer=null;if(navigator.vibrate){try{navigator.vibrate(0);}catch(e){}}}
+ document.getElementById("snd2").classList.toggle("hidden",!on||audioOn());
+}
+function dismissAlert(){try{localStorage.setItem(alertKey(now().date),"1");}catch(e){} setAlarm(false); mKey=null; morningTick(now());}
+function morningTick(t){
+ var st=morningState(t), secs=(toMin(ALERT_AT)*60)-((t.h*60+t.m)*60+t.s), left=Math.max(1,Math.ceil(secs/60));
+ setAlarm(st==="alert");
+ if(st==="alert"){var dd=dayData(t.date);document.getElementById("alsub").textContent="השעה "+pad(t.h)+":"+pad(t.m)+(dd&&dd.leave_by?" · יוצאים ב-"+dd.leave_by:"");}
+ var key=st+"|"+(st==="warn"?left:"")+"|"+audioOn(); if(key===mKey)return; mKey=key;
+ var mb=document.getElementById("mbar"); if(!mb)return;
+ var sb=audioOn()?"":'<button class="snd" id="snd">הפעל צליל 🔔</button>', h="";
+ if(st==="early")h=audioOn()?'<div class="mbar early"><div class="mt">🔔 הצליל מופעל · ב-'+ALERT_AT+' יהיה צלצול</div></div>':
+   '<div class="mbar early"><div class="mt">🔔 כדי לשמוע את הצלצול של '+ALERT_AT+', לוחצים כאן:</div>'+sb+'</div>';
+ else if(st==="warn")h='<div class="mbar warn"><div class="mt">⏰ '+(left===1?"עוד דקה":"עוד "+left+" דקות")+'<small>ואז צריך להתחיל למהר! 🏃</small></div>'+sb+'</div>';
+ else if(st==="done")h='<div class="mbar done"><div class="mt">✋ נועם בדרך! כל הכבוד 👍</div></div>';
+ mb.innerHTML=h; fit();
+}
+
+// ================= v2: checklist (per day, this iPad only) =================
+var ckDate=null;
+function tasksFor(iso){
+ var t=[["eat","🍳","לאכול"],["dress","👕","להתלבש"],["teeth","🪥","לצחצח שיניים"],["helmet","⛑️","לקחת קסדה"]], wd=dObj(iso).getUTCDay(), dd=dayData(iso);
+ if(wd===3&&(!dd||dd.noam_school))t.push(["wed","👕🏓","בגדי ספורט ומטקה",1]);   // Wednesday school days
+ if(wd===4)t.push(["thu","⚽👟","בגדי ספורט ונעלי כדורגל",1]);                     // Thursday
+ if(wd===6)t.push(["sat","🧢","כובע לברייקדנס",1]);                                // Saturday
+ return t;
+}
+function ckKey(iso){return "noam-check-"+iso;}
+function getChecks(iso){try{return JSON.parse(localStorage.getItem(ckKey(iso))||"{}");}catch(e){return {};}}
+function cleanupDaily(iso){try{for(var i=localStorage.length-1;i>=0;i--){var k=localStorage.key(i);
+ if(k&&((k.indexOf("noam-check-")===0&&k!==ckKey(iso))||(k.indexOf("noam-alert-ok-")===0&&k!==alertKey(iso))))localStorage.removeItem(k);}}catch(e){}}
+function renderChecks(){
+ var iso=now().date, ts=tasksFor(iso), ck=getChecks(iso), done=0, h='<div class="h2">✅ המשימות שלי היום</div>';
+ ts.forEach(function(x){var on=!!ck[x[0]];if(on)done++;
+  h+='<button class="task'+(on?" done":"")+(x[3]?" special":"")+'" data-task="'+x[0]+'"><span class="em">'+x[1]+'</span><span class="tx">'+esc(x[2])+'</span><span class="bx">'+(on?"✓":"")+'</span></button>';});
+ h+=done===ts.length?'<div class="yay">🎉 כל הכבוד נועם! סיימת הכול! 🦊⭐</div>':'<div class="progress">עשיתי '+done+' מתוך '+ts.length+' ⭐</div>';
+ document.getElementById("checks").innerHTML=h;
+}
+function toggleTask(id){var iso=now().date, ck=getChecks(iso); ck[id]=!ck[id]; if(!ck[id])delete ck[id];
+ try{localStorage.setItem(ckKey(iso),JSON.stringify(ck));}catch(e){} renderChecks();}
+
+// ================= v2: writing area (Ben's diary pattern, no sending) =================
+// Entry: {id,ts,txt,synced,deleted}. Saved on this iPad; a write-only copy goes to Niv's sheet "היומן של נועם".
+var showList=false, askDel=null;
+function stampTxt(ms){var p=munichParts(ms);var d=dObj(p.date);return HEB_DAYS[d.getUTCDay()]+" "+d.getUTCDate()+"."+(d.getUTCMonth()+1)+"."+d.getUTCFullYear()+" · "+pad(p.h)+":"+pad(p.m);}
+function getDiary(){try{return JSON.parse(localStorage.getItem("noam-diary")||"[]");}catch(e){return [];}}
+function putDiary(a){try{localStorage.setItem("noam-diary",JSON.stringify(a));return true;}catch(e){return false;}}
+function findEntry(a,id){for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null;}
+function needsPost(e){return !e.synced;}
+function postEntry(e){
+ if(!DIARY_ENDPOINT)return Promise.reject("no endpoint");
+ var body={kid:"noam",id:e.id,ts:e.ts,when:stampTxt(e.ts),text:e.txt};
+ return fetch(DIARY_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});
+}
+var syncing=false, syncAgain=false;
+function syncDiary(){ // offline queue: every unsynced entry is posted once, one at a time
+ if(!DIARY_ENDPOINT)return Promise.resolve(false);
+ if(syncing){syncAgain=true;return Promise.resolve(false);}
+ var ids=getDiary().filter(needsPost).map(function(e){return e.id;}); if(!ids.length)return Promise.resolve(true);
+ syncing=true; var ok=true;
+ return ids.reduce(function(p,id){return p.then(function(){
+  var e=findEntry(getDiary(),id); if(!e||!needsPost(e))return;
+  return postEntry(e).then(function(){var b=getDiary(),x=findEntry(b,id); if(!x)return; x.synced=true; if(x.deleted)x.txt=""; putDiary(b);},function(){ok=false;});
+ });},Promise.resolve())
+ .then(function(){syncing=false; if(syncAgain){syncAgain=false;return syncDiary();} return ok;},function(){syncing=false;return false;});
+}
+function flash(t,ms){var n=document.getElementById("note");n.textContent=t;clearTimeout(flash.t);if(ms)flash.t=setTimeout(function(){n.textContent="";},ms);}
+function saveDiary(){
+ var ta=document.getElementById("diary"), txt=ta.value.trim();
+ if(!txt){flash("✏️ קודם כותבים משהו…",4000);return;}
+ var e={id:nowMs().toString(36)+Math.random().toString(36).slice(2,6),ts:nowMs(),txt:txt,synced:false}, a=getDiary(); a.push(e);
+ if(!putDiary(a)){flash("😕 לא הצלחתי לשמור",5000);return;}
+ ta.value=""; ta.blur(); flash("✅ נשמר! כל הכבוד נועם",4000);
+ if(showList)renderEntries();
+ syncDiary();
+}
+function renderEntries(){
+ var el=document.getElementById("entries"); el.classList.toggle("hidden",!showList);
+ document.getElementById("showd").textContent=showList?"🔼 להסתיר":"📖 מה כתבתי";
+ if(!showList){el.innerHTML="";return;}
+ var a=getDiary().filter(function(e){return !e.deleted;}).sort(function(x,y){return y.ts-x.ts;}).slice(0,30), h="";
+ if(!a.length)h='<div class="empty2">📭 עוד לא כתבת כלום</div>';
+ a.forEach(function(e){
+  h+='<div class="entry"><div class="row2"><div class="bd"><div class="when">🗓️ '+esc(stampTxt(e.ts))+'</div><div class="txt">'+esc(e.txt)+'</div></div>'+
+   '<button class="del" data-del="'+esc(e.id)+'" aria-label="למחוק"><span class="re">🗑️</span>למחוק</button></div>'+
+   (askDel===e.id?'<div class="ask"><div class="q">למחוק?</div><button class="yes" data-yes="'+esc(e.id)+'">כן</button><button class="no" data-no="1">לא</button></div>':'')+'</div>';});
+ el.innerHTML=h;
+}
+function deleteEntry(id){
+ var a=getDiary(), e=findEntry(a,id); askDel=null; if(!e)return renderEntries();
+ e.deleted=true; if(e.synced)e.txt="";   // hidden on this iPad; Niv's sheet keeps its row
+ putDiary(a); renderEntries(); syncDiary();
+}
 // ---- navigation: tap button or swipe sideways ----
-document.addEventListener("click",function(e){var id=e.target&&e.target.id;if(id==="tw"){view="week";render();}else if(id==="tdy"){view="day";render();}});
+document.addEventListener("click",function(e){var id=e.target&&e.target.id;if(id==="tw"){view="week";render();}else if(id==="tdy"){view="day";render();}
+ var b=e.target.closest&&e.target.closest("button"); if(!b)return;
+ if(b.dataset.task){toggleTask(b.dataset.task);return;}
+ if(b.dataset.del){askDel=b.dataset.del;renderEntries();return;}
+ if(b.dataset.yes){deleteEntry(b.dataset.yes);return;}
+ if(b.dataset.no){askDel=null;renderEntries();return;}
+ switch(b.id){
+  case "snd":case "snd2":unlockAudio(true);break;
+  case "dismiss":dismissAlert();break;
+  case "save":saveDiary();break;
+  case "showd":showList=!showList;askDel=null;renderEntries();break;
+ }
+});
 var sx=null,sy=null;
 document.addEventListener("touchstart",function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
-document.addEventListener("touchend",function(e){if(sx==null)return;var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+document.addEventListener("touchend",function(e){if(sx==null)return;if(e.target.closest&&e.target.closest("#extras,#alert")){sx=null;return;}var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
  if(Math.abs(dx)>80&&Math.abs(dx)>Math.abs(dy)*1.5){view=view==="day"?"week":"day";render();}sx=null;},{passive:true});
-document.addEventListener("touchmove",function(e){e.preventDefault();},{passive:false}); // no rubber-band scrolling
+document.addEventListener("touchmove",function(e){if(view==="day"&&document.getElementById("alert").classList.contains("hidden")&&e.target.closest&&e.target.closest("#app"))return;e.preventDefault();},{passive:false}); // day view scrolls down to the checklist/writing area; otherwise no rubber-band
 if(q.get("view")==="week")view="week";
 window.addEventListener("resize",fit);
-document.addEventListener("visibilitychange",function(){if(!document.hidden){loadData();delete WX["_l"+now().date];delete WX[now().date];render();}});
+document.addEventListener("visibilitychange",function(){if(!document.hidden){loadData();delete WX["_l"+now().date];delete WX[now().date];render();syncDiary();}});
+window.addEventListener("online",syncDiary);
+// any first tap on the page also unlocks sound (iOS needs a user gesture)
+["touchend","click"].forEach(function(ev){document.addEventListener(ev,function(){if(!audioOn())unlockAudio(false);},{passive:true});});
+if(sessionStorage.getItem("noam-audio")==="1")unlockAudio(false);
+// test hook for automated checks
+window.__noam={tasksFor:tasksFor,now:now,getDiary:getDiary,morningState:morningState,audioOn:function(){return audioOn();}};
 
-render(); loadData(); loadWeekWeather();
+render(); loadData(); loadWeekWeather(); syncDiary();
 setInterval(tick,1000);
 setInterval(loadData,5*60e3);
 setInterval(function(){var d=now().date;delete WX["_l"+d];loadWeather(d);},30*60e3);
