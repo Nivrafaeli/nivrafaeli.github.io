@@ -79,6 +79,23 @@ textarea:focus{outline:none;border-color:#eb5757}
 .entry .when{font-size:1.6rem;font-weight:700;color:#c0392b;margin-bottom:.3rem}
 .entry .txt{font-size:2.3rem;line-height:1.35;white-space:pre-wrap;word-break:break-word;-webkit-user-select:text;user-select:text}
 .msg{text-align:center;font-size:2.2rem;font-weight:700;color:#46506a;padding:1rem}
+/* send + delete */
+.sendt{font-size:2.2rem;font-weight:900;color:#2f6fd6;margin:1.2rem 0 .6rem}
+.rcps{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem}
+.rcp{font:inherit;font-size:2.3rem;font-weight:800;background:#f6f7fb;color:#1e2a3a;border:.3rem solid #d5dbe8;border-radius:1.3rem;padding:.8rem .3rem;display:flex;flex-direction:column;align-items:center;gap:.2rem}
+.rcp .re{font-size:4rem;line-height:1}
+.rcp.on{background:#e3eeff;border-color:#2f6fd6;color:#1d4fa8;box-shadow:0 0 0 .25rem #b9d1ff}
+.rcp.on::after{content:"✓";font-size:2rem;color:#2f6fd6}
+.rcp:active{transform:scale(.95)}
+.send{background:#2f6fd6;color:#fff;width:100%;margin-top:.9rem;font-size:2.8rem}
+.entry .row{display:flex;align-items:flex-start;gap:1rem}.entry .bd{flex:1;min-width:0}
+.entry .sentto{font-size:1.6rem;color:#2f6fd6;font-weight:700;margin-top:.3rem}
+.del{font:inherit;flex:none;font-size:2rem;font-weight:800;background:#fff;color:#c0392b;border:.25rem solid #f3b0a8;border-radius:1.1rem;padding:.5rem .9rem;display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.del .re{font-size:3rem}
+.ask{display:flex;align-items:center;gap:.8rem;margin-top:.7rem;background:#fff1ef;border-radius:1rem;padding:.6rem .8rem}
+.ask .q{flex:1;font-size:2.4rem;font-weight:900;color:#c0392b}
+.yes,.no{font:inherit;font-size:2.2rem;font-weight:900;border:none;border-radius:1rem;padding:.6rem 1.4rem}
+.yes{background:#eb5757;color:#fff}.no{background:#e3e6ef;color:#1e2a3a}
 .foot{text-align:center;font-size:1.1rem;color:#9aa3b2;margin-top:1rem}
 </style>
 </head>
@@ -95,6 +112,9 @@ textarea:focus{outline:none;border-color:#eb5757}
    <div class="h2">✏️ היומן שלי</div>
    <textarea id="diary" placeholder="מה קרה היום? מה אני רוצה לזכור?"></textarea>
    <div class="btns"><button class="big save" id="save">💾 שמור</button><button class="big read" id="showd">📖 מה כתבתי</button></div>
+   <div class="sendt">✉️ לשלוח למישהו? בוחרים:</div>
+   <div class="rcps" id="rcps"></div>
+   <button class="big send" id="send">שלח ✉️</button>
    <div class="note" id="note"></div>
   </div>
   <div class="foot" id="foot"></div>
@@ -118,7 +138,7 @@ textarea:focus{outline:none;border-color:#eb5757}
 var DIARY_ENDPOINT = "https://script.google.com/macros/s/AKfycbwijY_uMoVurCDfsgYe0QYST0CEUdnr5VNAxmf-FLuR6TQY61j-Yly9vASkkiXU5Q4Fdw/exec";
 var DIARY_FIELD = "";
 // ==================================================================
-var TZ="Europe/Berlin", LAT=48.137, LON=11.575, BUILD="ben v1 03.11";
+var TZ="Europe/Berlin", LAT=48.137, LON=11.575, BUILD="ben v2 03.11";
 var HEB_DAYS=["יום ראשון","יום שני","יום שלישי","יום רביעי","יום חמישי","יום שישי","שבת"];
 var HEB_MONTHS=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 var WMO={0:["☀️","שמש"],1:["🌤️","בעיקר שמש"],2:["⛅","מעונן חלקית"],3:["☁️","מעונן"],45:["🌫️","ערפל"],48:["🌫️","ערפל קפוא"],
@@ -255,41 +275,97 @@ function confetti(){var c=document.getElementById("confetti"),em=["🎉","⭐","
   s.style.animationDelay=(Math.random()*.8)+"s";c.appendChild(s);} setTimeout(function(){c.innerHTML="";},4000);}
 
 // ---- diary: saved on this iPad, copy sent (write-only) to Drive when configured ----
+// Entry: {id,ts,txt,synced, sendTo:[keys waiting], sentTo:[keys done], deleted}
+// Recipients are KEYS only; the email addresses live in the Apps Script allowlist, never on this page.
+var RCP=[["abba","👨","אבא"],["ima","👩","אמא"],["savta","👵","סבתא"],["noam","👦","נועם"]];
+function rcpName(k){for(var i=0;i<RCP.length;i++)if(RCP[i][0]===k)return RCP[i][1]+" "+RCP[i][2];return "";}
+var picked={}, lastSaved=null, askDel=null;
 function getDiary(){try{return JSON.parse(localStorage.getItem("ben-diary")||"[]");}catch(e){return [];}}
 function putDiary(a){try{localStorage.setItem("ben-diary",JSON.stringify(a));return true;}catch(e){return false;}}
-function sendEntry(e){
+function findEntry(a,id){for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null;}
+function needsPost(e){return e.deleted?!e.synced:(!e.synced||(e.sendTo&&e.sendTo.length>0));}
+function sendEntry(e,to){
  if(!DIARY_ENDPOINT)return Promise.reject("no endpoint");
  var opt;
  if(DIARY_FIELD){var fd=new URLSearchParams();fd.append(DIARY_FIELD,e.txt+"\n— "+stampTxt(e.ts)+" ["+e.id+"]");
   opt={method:"POST",mode:"no-cors",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:fd.toString()};}
- else opt={method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({id:e.id,ts:e.ts,when:stampTxt(e.ts),text:e.txt})};
+ else{var body={id:e.id,ts:e.ts,when:stampTxt(e.ts),text:e.txt}; if(to&&to.length)body.to=to;
+  opt={method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)};}
  return fetch(DIARY_ENDPOINT,opt);
 }
-var syncing=false;
+var syncing=false, syncAgain=false;
+// One entry at a time. Before each post the entry is re-read, so a deleted entry never posts again
+// (a deleted entry that never reached the sheet is still saved there once, but its emails are cancelled).
 function syncDiary(){
- if(!DIARY_ENDPOINT||syncing)return; var a=getDiary(), todo=a.filter(function(e){return !e.synced;}); if(!todo.length)return;
- syncing=true;
- todo.reduce(function(p,e){return p.then(function(){return sendEntry(e).then(function(){
-  var b=getDiary();b.forEach(function(x){if(x.id===e.id)x.synced=true;});putDiary(b);});});},Promise.resolve())
- .catch(function(){}).then(function(){syncing=false;});
+ if(!DIARY_ENDPOINT)return Promise.resolve(false);
+ if(syncing){syncAgain=true;return Promise.resolve(false);}
+ var ids=getDiary().filter(needsPost).map(function(e){return e.id;}); if(!ids.length)return Promise.resolve(true);
+ syncing=true; var ok=true;
+ return ids.reduce(function(p,id){return p.then(function(){
+  var e=findEntry(getDiary(),id); if(!e||!needsPost(e))return;
+  var to=e.deleted?[]:(e.sendTo||[]).slice();
+  return sendEntry(e,to).then(function(){
+   var b=getDiary(),x=findEntry(b,id); if(!x)return;
+   x.synced=true;
+   if(to.length){x.sentTo=(x.sentTo||[]);to.forEach(function(k){if(x.sentTo.indexOf(k)<0)x.sentTo.push(k);});
+    x.sendTo=(x.sendTo||[]).filter(function(k){return to.indexOf(k)<0;});}
+   if(x.deleted){x.txt="";x.sendTo=[];}
+   putDiary(b);
+  },function(){ok=false;});
+ });},Promise.resolve())
+ .then(function(){syncing=false; if(syncAgain){syncAgain=false;return syncDiary();} return ok;},function(){syncing=false;return false;});
 }
+function newEntry(txt){return {id:nowMs().toString(36)+Math.random().toString(36).slice(2,6),ts:nowMs(),txt:txt,synced:false,sendTo:[],sentTo:[]};}
+function flash(t,ms){var n=document.getElementById("note");n.textContent=t;clearTimeout(flash.t);if(ms)flash.t=setTimeout(function(){n.textContent="";},ms);}
 function saveDiary(){
- var ta=document.getElementById("diary"), txt=ta.value.trim(), note=document.getElementById("note");
- if(!txt){note.textContent="✏️ קודם כותבים משהו…";return;}
- var e={id:nowMs().toString(36)+Math.random().toString(36).slice(2,6),ts:nowMs(),txt:txt,synced:false}, a=getDiary(); a.push(e);
- if(!putDiary(a)){note.textContent="😕 לא הצלחתי לשמור";return;}
- ta.value=""; ta.blur(); note.textContent="✅ נשמר ביומן! כל הכבוד קוקוס";
- setTimeout(function(){note.textContent="";},4000);
+ var ta=document.getElementById("diary"), txt=ta.value.trim();
+ if(!txt){flash("✏️ קודם כותבים משהו…",4000);return;}
+ var e=newEntry(txt), a=getDiary(); a.push(e);
+ if(!putDiary(a)){flash("😕 לא הצלחתי לשמור",5000);return;}
+ lastSaved=e.id; ta.value=""; ta.blur(); flash("✅ נשמר ביומן! כל הכבוד קוקוס",4000);
  syncDiary();
 }
-function showPast(){
- var a=getDiary().slice().sort(function(x,y){return y.ts-x.ts;}), h="";
- if(!a.length)h='<div class="card"><div class="msg">📭 עוד לא כתבת כלום ביומן</div></div>';
- a.forEach(function(e){h+='<div class="entry"><div class="when">🗓️ '+esc(stampTxt(e.ts))+'</div><div class="txt">'+esc(e.txt)+'</div></div>';});
- document.getElementById("entries").innerHTML=h;
- document.getElementById("main").classList.add("hidden");document.getElementById("past").classList.remove("hidden");window.scrollTo(0,0);
+function renderRcps(){
+ document.getElementById("rcps").innerHTML=RCP.map(function(r){
+  return '<button class="rcp'+(picked[r[0]]?" on":"")+'" data-rcp="'+r[0]+'"><span class="re">'+r[1]+'</span><span>'+esc(r[2])+'</span></button>';}).join("");
 }
-function hidePast(){document.getElementById("past").classList.add("hidden");document.getElementById("main").classList.remove("hidden");window.scrollTo(0,0);}
+function sendDiary(){
+ var keys=RCP.map(function(r){return r[0];}).filter(function(k){return picked[k];});
+ var ta=document.getElementById("diary"), txt=ta.value.trim(), a=getDiary(), e=null;
+ if(!keys.length){flash("👆 קודם בוחרים למי לשלוח",4000);return;}
+ if(txt){e=newEntry(txt);a.push(e);}                        // not saved yet → save it now
+ else if(lastSaved)e=findEntry(a,lastSaved);                 // just tapped Save → send that one
+ if(!e||e.deleted){flash("✏️ קודם כותבים משהו…",4000);return;}
+ e.sendTo=e.sendTo||[];keys.forEach(function(k){if((e.sentTo||[]).indexOf(k)<0&&e.sendTo.indexOf(k)<0)e.sendTo.push(k);});
+ if(!putDiary(a)){flash("😕 לא הצלחתי לשמור",5000);return;}
+ lastSaved=e.id; ta.value=""; ta.blur(); picked={}; renderRcps();
+ var who=keys.map(rcpName).join(", ");
+ if(!DIARY_ENDPOINT||navigator.onLine===false){flash("📮 נשמר! יישלח ל"+who+" כשיהיה אינטרנט",6000);syncDiary();return;}
+ flash("✉️ שולח…",0);
+ syncDiary().then(function(ok){
+  var x=findEntry(getDiary(),e.id), left=x&&x.sendTo?x.sendTo.length:1;
+  if(ok&&!left){flash("🎉 נשלח! "+who+" יקבלו את המכתב",6000);confetti();}
+  else flash("📮 נשמר! יישלח ל"+who+" כשיהיה אינטרנט",6000);
+ });
+}
+function showPast(){
+ var a=getDiary().filter(function(e){return !e.deleted;}).sort(function(x,y){return y.ts-x.ts;}), h="";
+ if(!a.length)h='<div class="card"><div class="msg">📭 עוד לא כתבת כלום ביומן</div></div>';
+ a.forEach(function(e){
+  var st=(e.sentTo||[]).map(rcpName), wt=(e.sendTo||[]).map(rcpName);
+  h+='<div class="entry"><div class="row"><div class="bd"><div class="when">🗓️ '+esc(stampTxt(e.ts))+'</div><div class="txt">'+esc(e.txt)+'</div>'+
+   (st.length?'<div class="sentto">✉️ נשלח ל'+esc(st.join(", "))+'</div>':'')+(wt.length?'<div class="sentto">📮 מחכה לשליחה ל'+esc(wt.join(", "))+'</div>':'')+
+   '</div><button class="del" data-del="'+esc(e.id)+'" aria-label="למחוק"><span class="re">🗑️</span>למחוק</button></div>'+
+   (askDel===e.id?'<div class="ask"><div class="q">למחוק?</div><button class="yes" data-yes="'+esc(e.id)+'">כן</button><button class="no" data-no="1">לא</button></div>':'')+'</div>';});
+ document.getElementById("entries").innerHTML=h;
+ document.getElementById("main").classList.add("hidden");document.getElementById("past").classList.remove("hidden");
+}
+function deleteEntry(id){
+ var a=getDiary(), e=findEntry(a,id); askDel=null; if(!e)return showPast();
+ e.deleted=true; e.sendTo=[]; if(e.synced)e.txt="";        // hidden here; Niv's sheet keeps its row
+ putDiary(a); if(lastSaved===id)lastSaved=null; showPast(); syncDiary();
+}
+function hidePast(){askDel=null;document.getElementById("past").classList.add("hidden");document.getElementById("main").classList.remove("hidden");window.scrollTo(0,0);}
 
 // ---- render ----
 function render(){
@@ -310,21 +386,27 @@ function tick(){
 document.addEventListener("click",function(e){
  var b=e.target.closest&&e.target.closest("button"); if(!b)return;
  if(b.dataset.task){toggleTask(b.dataset.task);return;}
+ if(b.dataset.rcp){picked[b.dataset.rcp]=!picked[b.dataset.rcp];renderRcps();return;}
+ if(b.dataset.del){askDel=b.dataset.del;showPast();return;}
+ if(b.dataset.yes){deleteEntry(b.dataset.yes);return;}
+ if(b.dataset.no){askDel=null;showPast();return;}
  switch(b.id){
   case "prev":shown=addDays(shown,-1);render();break;
   case "next":shown=addDays(shown,1);render();break;
   case "tdy":shown=now().date;render();break;
   case "save":saveDiary();break;
-  case "showd":showPast();break;
+  case "send":sendDiary();break;
+  case "showd":askDel=null;showPast();window.scrollTo(0,0);break;
   case "back1":case "back2":hidePast();break;
  }
 });
 document.addEventListener("visibilitychange",function(){if(!document.hidden){loadData();var d=now().date;delete WX["_l"+d];delete WX[d];render();syncDiary();}});
 window.addEventListener("online",syncDiary);
 // test hook for automated checks: window.__ben.tasksFor("2026-11-05")
-window.__ben={tasksFor:tasksFor,clothing:clothing,now:now};
+window.__ben={tasksFor:tasksFor,clothing:clothing,now:now,getDiary:getDiary,syncDiary:syncDiary};
 
 cleanupChecks(now().date);
+renderRcps();
 render(); loadData(); syncDiary();
 setInterval(tick,1000);
 setInterval(loadData,5*60e3);
