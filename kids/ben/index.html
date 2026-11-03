@@ -81,7 +81,7 @@ textarea:focus{outline:none;border-color:#eb5757}
 .msg{text-align:center;font-size:2.2rem;font-weight:700;color:#46506a;padding:1rem}
 /* send + delete */
 .sendt{font-size:2.2rem;font-weight:900;color:#2f6fd6;margin:1.2rem 0 .6rem}
-.rcps{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem}
+.rcps{display:grid;grid-template-columns:repeat(5,1fr);gap:.7rem}
 .rcp{font:inherit;font-size:2.3rem;font-weight:800;background:#f6f7fb;color:#1e2a3a;border:.3rem solid #d5dbe8;border-radius:1.3rem;padding:.8rem .3rem;display:flex;flex-direction:column;align-items:center;gap:.2rem}
 .rcp .re{font-size:4rem;line-height:1}
 .rcp.on{background:#e3eeff;border-color:#2f6fd6;color:#1d4fa8;box-shadow:0 0 0 .25rem #b9d1ff}
@@ -139,6 +139,34 @@ textarea:focus{outline:none;border-color:#eb5757}
 .mtap{font-size:1.9rem;font-weight:800;color:#2f6fd6;margin-top:.5rem}
 .msec{font-size:2.2rem;font-weight:900;color:#fff;margin:.6rem 0 .6rem;text-shadow:0 .1rem .3rem rgba(0,0,0,.2)}
 .msec.dark{color:#46506a;text-shadow:none}
+/* v6: people list + one conversation per person (like WhatsApp) */
+.pcard{display:flex;align-items:center;gap:1.2rem;width:100%;font:inherit;text-align:right;background:#fff;border:.3rem solid #d5dbe8;border-radius:1.6rem;padding:1rem 1.3rem;margin-bottom:1rem;box-shadow:0 .2rem .5rem rgba(0,0,0,.06)}
+.pcard:active{transform:scale(.98)}
+.pcard.unread{border-color:#2f6fd6;background:#eef4ff}
+.pav{font-size:6.4rem;line-height:1;flex:none}
+.pwho{flex:1;min-width:0}
+.pname{font-size:3.4rem;font-weight:900;color:#1e2a3a;line-height:1.15}
+.plast{font-size:2rem;font-weight:600;color:#5b6475;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcard.unread .plast{color:#1d4fa8;font-weight:800}
+.ptime{flex:none;font-size:1.7rem;font-weight:700;color:#5b6475;align-self:flex-start;margin-top:.6rem}
+.pcnt{flex:none;min-width:5rem;height:5rem;border-radius:999px;background:#eb3b3b;color:#fff;font-size:3rem;font-weight:900;line-height:5rem;text-align:center;padding:0 .8rem}
+.chead{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:1rem;background:#fff;border-radius:0 0 1.6rem 1.6rem;padding:calc(env(safe-area-inset-top) + .7rem) 1rem .7rem;margin:calc(-1.4rem - env(safe-area-inset-top)) -1rem 1rem;box-shadow:0 .25rem .75rem rgba(0,0,0,.12)}
+.cback{font:inherit;flex:none;font-size:2.4rem;font-weight:900;background:#fff;color:#c0392b;border:.25rem solid #eb5757;border-radius:1.2rem;padding:.6rem 1.1rem}
+.cav{font-size:5.4rem;line-height:1;flex:none}
+.cname{flex:1;font-size:3.6rem;font-weight:900;color:#1e2a3a}
+.cmsgs{display:flex;flex-direction:column;gap:.9rem;padding:.2rem 0 1rem}
+.cday{align-self:center;background:#fff;color:#5b6475;font-size:1.8rem;font-weight:800;border-radius:999px;padding:.3rem 1.3rem;box-shadow:0 .1rem .3rem rgba(0,0,0,.08);margin:.4rem 0}
+.bub{max-width:80%;border-radius:1.6rem;padding:.8rem 1.2rem .5rem;font-size:2.8rem;line-height:1.4;white-space:pre-wrap;word-break:break-word;box-shadow:0 .15rem .4rem rgba(0,0,0,.1);-webkit-user-select:text;user-select:text}
+.bub.them{align-self:flex-start;background:#fff;border:.25rem solid #d5dbe8;border-top-right-radius:.4rem}
+.bub.them.new{border-color:#2f6fd6;background:#eef4ff}
+.bub.me{align-self:flex-end;background:#d4f5d0;border:.25rem solid #9fdc97;border-top-left-radius:.4rem}
+.bub .bt{display:block;font-size:1.6rem;font-weight:700;color:#6b7383;margin-top:.2rem;direction:ltr;text-align:left}
+.bub.them .bt{text-align:right}
+.cempty{text-align:center;font-size:2.6rem;font-weight:800;color:#46506a;padding:2rem 1rem}
+.cempty .em{font-size:6rem;line-height:1.2}
+.cbox{background:#fff;border-radius:1.6rem;box-shadow:0 .25rem .75rem rgba(0,0,0,.1);padding:1rem;margin-top:.6rem}
+.cbox textarea{min-height:8rem;font-size:2.8rem}
+.csend{background:#2f6fd6;color:#fff;width:100%;margin-top:.8rem;font-size:3rem}
 </style>
 </head>
 <body>
@@ -173,7 +201,11 @@ textarea:focus{outline:none;border-color:#eb5757}
   <div class="top"><div class="date">📬 ההודעות שלי</div></div>
   <button class="big back" id="back3" style="width:100%;margin-bottom:1.2rem">⬅️ חזרה</button>
   <div id="mlist"></div>
-  <button class="big back" id="back4" style="width:100%;margin-top:.5rem">⬅️ חזרה</button>
+ </div>
+ <div id="chat" class="hidden">
+  <div class="chead"><button class="cback" id="cback" aria-label="חזרה">⬅️ חזרה</button><div class="cav" id="cav"></div><div class="cname" id="cname"></div></div>
+  <div class="cmsgs" id="cmsgs"></div>
+  <div class="cbox"><textarea id="ctext"></textarea><button class="big csend" id="csend">שלח ✉️</button><div class="note" id="cnote"></div></div>
  </div>
 </div>
 <div id="confetti"></div>
@@ -197,7 +229,7 @@ var BEN_MAIL_URL = "https://script.google.com/macros/s/AKfycbwijY_uMoVurCDfsgYe0
 var BEN_MAIL_KEY = "";   // fallback only – leave empty (anything here is public)
 var MAIL_POLL_MS = 2*60e3;
 // ==================================================================
-var TZ="Europe/Berlin", LAT=48.137, LON=11.575, BUILD="ben v4 03.11";
+var TZ="Europe/Berlin", LAT=48.137, LON=11.575, BUILD="ben v6 03.11";
 var HEB_DAYS=["יום ראשון","יום שני","יום שלישי","יום רביעי","יום חמישי","יום שישי","שבת"];
 var HEB_MONTHS=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 var WMO={0:["☀️","שמש"],1:["🌤️","בעיקר שמש"],2:["⛅","מעונן חלקית"],3:["☁️","מעונן"],45:["🌫️","ערפל"],48:["🌫️","ערפל קפוא"],
@@ -336,7 +368,7 @@ function confetti(){var c=document.getElementById("confetti"),em=["🎉","⭐","
 // ---- diary: saved on this iPad, copy sent (write-only) to Drive when configured ----
 // Entry: {id,ts,txt,synced, sendTo:[keys waiting], sentTo:[keys done], deleted}
 // Recipients are KEYS only; the email addresses live in the Apps Script allowlist, never on this page.
-var RCP=[["abba","👨","אבא"],["ima","👩","אמא"],["savta","👵","סבתא"],["noam","👦","נועם"]];
+var RCP=[["abba","👨","אבא"],["ima","👩","אמא"],["savta","👵","סבתא"],["noam","👦","נועם"],["saba","👴","סבא"]];
 function rcpName(k){for(var i=0;i<RCP.length;i++)if(RCP[i][0]===k)return RCP[i][1]+" "+RCP[i][2];return "";}
 var picked={}, lastSaved=null, askDel=null;
 function getDiary(){try{return JSON.parse(localStorage.getItem("ben-diary")||"[]");}catch(e){return [];}}
@@ -429,7 +461,7 @@ function deleteEntry(id){
 }
 function hidePast(){askDel=null;setView("main");}
 var view="main";
-function setView(v){view=v;["main","past","weekv","inbox"].forEach(function(id){document.getElementById(id).classList.toggle("hidden",id!==v);});window.scrollTo(0,0);}
+function setView(v){view=v;["main","past","weekv","inbox","chat"].forEach(function(id){document.getElementById(id).classList.toggle("hidden",id!==v);});window.scrollTo(0,0);}
 
 // ---- v3: week view (Mon–Sun like Noam's; on Sunday the coming week). Only what ben.json says – never invented ----
 var WEEKWX=null, wkMon=null;
@@ -471,57 +503,109 @@ function showWeek(){wkMon=monOf(now().date);renderWeek();setView("weekv");if(!WE
  try{var u=new URL(location.href);u.searchParams.delete("mailkey");history.replaceState(null,"",u.pathname+(u.search||"")+u.hash);}catch(e){}}})();
 function mailKey(){var k="";try{k=localStorage.getItem("ben-mail-key")||"";}catch(e){}return k||BEN_MAIL_KEY||"";}
 function mailOn(){return !!(BEN_MAIL_URL&&mailKey());}
-var MAIL={ok:false,items:[]}, openMsg=null, mailBusy=false;
-function getRead(){try{return JSON.parse(localStorage.getItem("ben-mail-read")||"[]");}catch(e){return [];}}
-function putRead(a){var lim=nowMs()-14*864e5;a=a.filter(function(m){return m.ts>lim;}).sort(function(x,y){return y.ts-x.ts;}).slice(0,20);
- try{localStorage.setItem("ben-mail-read",JSON.stringify(a));}catch(e){}return a;}
-function isRead(id){return getRead().some(function(m){return m.id===id;});}
-function unreadList(){return MAIL.items.filter(function(m){return !isRead(m.id);});}
+// v6: the script returns only family (the people Ben can write to). One conversation per person: their mails + Ben's letters,
+// replies and new mails merged (action=chat). Opening a conversation marks that person's mail as read (action=readall).
+var MAIL={ok:false,unread:0,people:[]}, mailBusy=false, CHAT=null, chatWith=null, chatBusy=false;
 function mailGet(params){
- var ctl=window.AbortController?new AbortController():null; if(ctl)setTimeout(function(){ctl.abort();},15000);
+ var ctl=window.AbortController?new AbortController():null; if(ctl)setTimeout(function(){ctl.abort();},20000);
  var u=BEN_MAIL_URL+(BEN_MAIL_URL.indexOf("?")<0?"?":"&")+params+"&key="+encodeURIComponent(mailKey())+"&t="+Date.now();
  return fetch(u,ctl?{signal:ctl.signal,cache:"no-store"}:{cache:"no-store"}).then(function(r){if(!r.ok)throw r.status;return r.json();});
 }
+function person(email){for(var i=0;i<MAIL.people.length;i++)if(MAIL.people[i].email===email)return MAIL.people[i];return null;}
+function totalUnread(){return MAIL.people.reduce(function(s,p){return s+(p.unread||0);},0);}
 function loadInbox(){
  if(!mailOn()){MAIL.ok=false;renderMailBtn();return Promise.resolve(false);}
  if(mailBusy||document.hidden)return Promise.resolve(false); mailBusy=true;
  return mailGet("action=inbox").then(function(j){mailBusy=false;
-  if(!j||!j.ok){if(j&&(j.error==="key"||j.error==="off"||j.error==="auth"))MAIL={ok:false,items:[]};renderMailBtn();return false;}
-  MAIL={ok:true,items:(j.items||[]).slice(0,20)};
-  // anything opened here but still unread on the server (markread failed) → retry quietly
-  MAIL.items.forEach(function(m){if(isRead(m.id))mailGet("action=markread&id="+encodeURIComponent(m.id)).catch(function(){});});
+  if(!j||!j.ok||!j.people){if(!j||j.error==="key"||j.error==="off"||j.error==="auth"||(j.ok&&!j.people))MAIL={ok:false,unread:0,people:[]};renderMailBtn();return false;}
+  MAIL={ok:true,unread:j.unread||0,people:j.people};
+  if(chatWith){var p=person(chatWith);if(p&&view==="chat"&&p.unread)loadChat(false);}   // new mail while the chat is open
   renderMailBtn(); if(view==="inbox")renderInbox(); return true;
  },function(){mailBusy=false;renderMailBtn();return false;});   // unreachable: keep the last state (hidden if it never worked)
 }
 function renderMailBtn(){
  var b=document.getElementById("mbox"), bd=document.getElementById("mbadge"), nw=document.getElementById("mnew");
  b.classList.toggle("hidden",!MAIL.ok);
- var n=MAIL.ok?unreadList().length:0;
+ var n=MAIL.ok?totalUnread():0;
  bd.textContent=n>9?"9+":String(n); bd.classList.toggle("hidden",!n); b.classList.toggle("new",n>0);
  nw.textContent=n?(n===1?"יש לך הודעה חדשה!":"יש לך הודעות חדשות!"):"";
  b.setAttribute("aria-label",n?"יש "+n+" הודעות חדשות":"הודעות");
 }
-function msgCard(m,unread){
- var full=openMsg===m.id;
- return '<button class="mcard'+(unread?" unread":"")+'" data-msg="'+esc(m.id)+'"><div class="mhd"><div class="mav">'+esc(m.icon||"✉️")+'</div><div class="mwho"><div class="mname">'+
-  esc(m.name||m.email||"")+'</div><div class="mtime">🕒 '+esc(stampTxt(m.ts))+'</div></div>'+(unread?'<div class="mdot">חדש!</div>':'')+'</div>'+
-  (m.subject?'<div class="msubj">'+esc(m.subject)+'</div>':'')+
-  (full?'<div class="mbody">'+esc(m.body||"")+'</div>':'<div class="mtap">👆 לוחצים כדי לקרוא</div>')+'</button>';
-}
+function hm(ms){var p=munichParts(ms);return pad(p.h)+":"+pad(p.m);}
+function dayLabel(ms){var d=munichParts(ms).date,t=now().date;return d===t?"היום":d===addDays(t,-1)?"אתמול":dateTxt(d);}
+function shortWhen(ms){var d=munichParts(ms).date,t=now().date;if(d===t)return hm(ms);if(d===addDays(t,-1))return "אתמול";var x=dObj(d);return x.getUTCDate()+"."+(x.getUTCMonth()+1);}
 function renderInbox(){
- var un=unreadList(), rd=getRead(), h="";
- if(un.length){h+='<div class="msec">✨ חדש!</div>'+un.map(function(m){return msgCard(m,true);}).join("");}
- else h+='<div class="card"><div class="msg">📭 אין הודעות חדשות</div></div>';
- if(rd.length)h+='<div class="msec dark">📖 כבר קראתי</div>'+rd.map(function(m){return msgCard(m,false);}).join("");
+ var h="";
+ MAIL.people.forEach(function(p){
+  var l=p.last, un=p.unread||0;
+  h+='<button class="pcard'+(un?" unread":"")+'" data-chat="'+esc(p.email)+'"><div class="pav">'+esc(p.icon)+'</div><div class="pwho"><div class="pname">'+esc(p.name)+'</div>'+
+   '<div class="plast">'+(l?(l.fromBen?"אני: ":"")+esc(String(l.text||"").split("\n")[0]):"✏️ אפשר לכתוב ל"+esc(p.name))+'</div></div>'+
+   (l?'<div class="ptime">'+esc(shortWhen(l.ts))+'</div>':'')+(un?'<div class="pcnt">'+(un>9?"9+":un)+'</div>':'')+'</button>';});
+ if(!MAIL.people.length)h='<div class="card"><div class="msg">📭 אין הודעות</div></div>';
  document.getElementById("mlist").innerHTML=h;
 }
-function openMessage(id){
- var m=null; MAIL.items.concat(getRead()).forEach(function(x){if(!m&&x.id===id)m=x;});
- if(!m)return; openMsg=openMsg===id?null:id;
- if(!isRead(id)){var a=getRead();a.push(m);putRead(a);mailGet("action=markread&id="+encodeURIComponent(id)).catch(function(){});}
- renderMailBtn(); renderInbox();
+function showInbox(){chatWith=null;renderInbox();setView("inbox");loadInbox();}
+// letters Ben wrote here that the server does not show yet (⏳ on the way / ✓ sent)
+function pendingFor(key,msgs){
+ if(!key)return [];
+ var lim=nowMs()-20*60e3;
+ return getDiary().filter(function(e){return !e.deleted&&e.ts>lim&&((e.sendTo||[]).indexOf(key)>=0||(e.sentTo||[]).indexOf(key)>=0);})
+  .filter(function(e){var t=String(e.txt||"").trim();return !msgs.some(function(m){return m.fromBen&&m.ts>=e.ts-120e3&&String(m.text||"").trim()===t.slice(0,2000);});})
+  .map(function(e){return {id:"p"+e.id,ts:e.ts,fromBen:true,text:e.txt,pending:(e.sendTo||[]).indexOf(key)>=0};});
 }
-function showInbox(){openMsg=null;renderInbox();setView("inbox");loadInbox();}
+function chatKey(){var p=person(chatWith);return (CHAT&&CHAT.key)||(p&&p.key)||"";}
+function renderChat(toBottom){
+ var p=person(chatWith)||CHAT||{icon:"✉️",name:""};
+ document.getElementById("cav").textContent=p.icon||"✉️";
+ document.getElementById("cname").textContent=p.name||"";
+ document.getElementById("ctext").placeholder="מה לכתוב ל"+(p.name||"")+"?";
+ document.getElementById("csend").textContent="שלח ל"+(p.name||"")+" ✉️";
+ var msgs=(CHAT&&CHAT.email===chatWith?CHAT.messages:[])||[];
+ var all=msgs.concat(pendingFor(chatKey(),msgs)).sort(function(a,b){return a.ts-b.ts;}), h="", lastDay="";
+ if(!all.length)h='<div class="cempty"><div class="em">'+esc(p.icon||"✉️")+'</div>'+(CHAT||chatBusy===false?"עוד אין הודעות.<br>אפשר לכתוב ל"+esc(p.name||"")+"! ✏️":"טוען…")+'</div>';
+ all.forEach(function(m){var d=dayLabel(m.ts);if(d!==lastDay){h+='<div class="cday">'+esc(d)+'</div>';lastDay=d;}
+  h+='<div class="bub '+(m.fromBen?"me":"them")+(m.unread?" new":"")+'">'+esc(m.text)+'<span class="bt">'+(m.fromBen?(m.pending?"⏳ ":"✓ "):"")+hm(m.ts)+'</span></div>';});
+ document.getElementById("cmsgs").innerHTML=h;
+ if(toBottom)setTimeout(function(){window.scrollTo(0,document.body.scrollHeight);},0);
+}
+function loadChat(toBottom){
+ if(!chatWith||!mailOn())return Promise.resolve(false);
+ var w=chatWith; chatBusy=true;
+ return mailGet("action=chat&with="+encodeURIComponent(w)).then(function(j){chatBusy=false;
+  if(w!==chatWith||!j||!j.ok)return false;
+  var before=CHAT&&CHAT.email===w?CHAT.messages.length:-1;
+  CHAT=j; try{localStorage.setItem("ben-chat-"+w,JSON.stringify(j));}catch(e){}
+  if(view==="chat")renderChat(toBottom||j.messages.length!==before);
+  var p=person(w);
+  if(j.messages.some(function(m){return m.unread;})||(p&&p.unread)){
+   if(p){p.unread=0;renderMailBtn();}
+   mailGet("action=readall&with="+encodeURIComponent(w)).catch(function(){});
+  }
+  return true;
+ },function(){chatBusy=false;return false;});
+}
+function openChat(email){
+ chatWith=email; CHAT=null; try{CHAT=JSON.parse(localStorage.getItem("ben-chat-"+email)||"null");}catch(e){}
+ chatBusy=true;
+ document.getElementById("ctext").value=""; document.getElementById("cnote").textContent="";
+ setView("chat"); renderChat(true); loadChat(true);
+}
+function chatFlash(t,ms){var n=document.getElementById("cnote");n.textContent=t;clearTimeout(chatFlash.t);if(ms)chatFlash.t=setTimeout(function(){n.textContent="";},ms);}
+function chatSend(){
+ var ta=document.getElementById("ctext"), txt=ta.value.trim(), key=chatKey();
+ if(!txt){chatFlash("✏️ קודם כותבים משהו…",4000);return;}
+ if(!key){chatFlash("😕 אי אפשר לשלוח לכאן",5000);return;}
+ var e=newEntry(txt), a=getDiary(); e.sendTo=[key]; a.push(e);           // same diary + send pipeline as the main page
+ if(!putDiary(a)){chatFlash("😕 לא הצלחתי לשמור",5000);return;}
+ lastSaved=e.id; ta.value=""; ta.blur(); renderChat(true);
+ if(navigator.onLine===false){chatFlash("📮 יישלח כשיהיה אינטרנט",6000);syncDiary();return;}
+ chatFlash("✉️ שולח…",0);
+ syncDiary().then(function(ok){
+  var x=findEntry(getDiary(),e.id), left=x&&x.sendTo?x.sendTo.length:1;
+  chatFlash(ok&&!left?"🎉 נשלח!":"📮 יישלח כשיהיה אינטרנט",5000); if(ok&&!left)confetti();
+  renderChat(true); setTimeout(function(){if(view==="chat")loadChat(true);},4000);
+ });
+}
 
 // ---- render ----
 function render(){
@@ -546,7 +630,7 @@ document.addEventListener("click",function(e){
  if(b.dataset.del){askDel=b.dataset.del;showPast();return;}
  if(b.dataset.yes){deleteEntry(b.dataset.yes);return;}
  if(b.dataset.no){askDel=null;showPast();return;}
- if(b.dataset.msg){openMessage(b.dataset.msg);return;}
+ if(b.dataset.chat){openChat(b.dataset.chat);return;}
  switch(b.id){
   case "prev":shown=addDays(shown,-1);render();break;
   case "next":shown=addDays(shown,1);render();break;
@@ -554,7 +638,9 @@ document.addEventListener("click",function(e){
   case "save":saveDiary();break;
   case "send":sendDiary();break;
   case "showd":askDel=null;showPast();window.scrollTo(0,0);break;
-  case "back1":case "back2":case "back3":case "back4":case "back5":hidePast();break;
+  case "back1":case "back2":case "back3":case "back5":hidePast();break;
+  case "cback":showInbox();break;
+  case "csend":chatSend();break;
   case "tw":showWeek();break;
   case "wprev":wkMon=addDays(wkMon,-7);renderWeek();break;
   case "wnext":wkMon=addDays(wkMon,7);renderWeek();break;
@@ -564,7 +650,8 @@ document.addEventListener("click",function(e){
 document.addEventListener("visibilitychange",function(){if(!document.hidden){loadData();var d=now().date;delete WX["_l"+d];delete WX[d];render();syncDiary();loadInbox();}});
 window.addEventListener("online",syncDiary);
 // test hook for automated checks: window.__ben.tasksFor("2026-11-05")
-window.__ben={tasksFor:tasksFor,clothing:clothing,now:now,getDiary:getDiary,syncDiary:syncDiary,loadInbox:loadInbox,mail:function(){return MAIL;}};
+window.__ben={tasksFor:tasksFor,clothing:clothing,now:now,getDiary:getDiary,syncDiary:syncDiary,loadInbox:loadInbox,mail:function(){return MAIL;},
+ showInbox:showInbox,openChat:openChat,chat:function(){return CHAT;}};
 
 cleanupChecks(now().date);
 renderRcps();
@@ -573,8 +660,10 @@ setInterval(tick,1000);
 setInterval(loadData,5*60e3);
 renderMailBtn(); loadInbox(); loadWeekWeather();
 setInterval(function(){if(!document.hidden)loadInbox();},MAIL_POLL_MS);
+setInterval(function(){if(!document.hidden&&view==="chat")loadChat(false);},60e3);   // v6: an open conversation refreshes every minute
 setInterval(loadWeekWeather,3*3600e3);
 if(q.get("view")==="week")showWeek();   // test hook
+if(q.get("view")==="mail")showInbox();   // test hook
 setInterval(function(){delete WX["_l"+shown];loadWeather(shown);},30*60e3);
 })();
 </script>
