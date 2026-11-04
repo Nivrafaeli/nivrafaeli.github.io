@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>הלוח של ניב</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#1d2330;--mute:#6b7280;--line:#e5e7eb;
+--c-fam:#e8590c;--c-trm:#1c7ed6;--c-adv:#2f9e44;--c-avi:#7048e8;--c-tax:#c2255c;--c-ins:#0c8599;--c-oth:#868e96}
+@media (prefers-color-scheme:dark){:root{--bg:#12151c;--card:#1b1f29;--ink:#e9ecf1;--mute:#9aa3b2;--line:#2c3240}}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,"SF Pro Text","Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:16px 18px 8px}h1{margin:0;font-size:22px}.sub{color:var(--mute);font-size:13px;margin-top:4px}
+.days{display:flex;flex-wrap:wrap;gap:6px;padding:8px 18px}
+.days button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 12px;font-size:14px;cursor:pointer}
+.days button.on{background:var(--ink);color:var(--bg)}
+main{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;padding:10px 18px 24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.card h2{font-size:16px;margin:0 0 10px}.wide{grid-column:1/-1}
+.where{font-size:20px;font-weight:600}.src{color:var(--mute);font-size:12px}
+.ev{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}.ev:first-of-type{border-top:0}
+.t{min-width:92px;color:var(--mute);font-variant-numeric:tabular-nums;direction:ltr;text-align:right}
+.who{font-size:12px;border-radius:8px;padding:1px 7px;background:var(--line);margin-inline-start:6px}
+.miss{color:#d9480f;font-size:13px;margin-top:8px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:13px}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-inline-end:5px;vertical-align:middle}
+.mx{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:620px){.mx{grid-template-columns:1fr}}
+.q{border:1px solid var(--line);border-radius:12px;padding:10px}.q h3{margin:0 0 6px;font-size:14px}.q .hint{color:var(--mute);font-size:12px;font-weight:400}
+.task{border-inline-start:5px solid var(--oth);padding:6px 9px;margin:6px 0;border-radius:6px;background:var(--bg);font-size:14px}
+.task small{display:block;color:var(--mute);font-size:12px;margin-top:2px}
+.today-tag{font-size:11px;background:#ffd43b;color:#000;border-radius:6px;padding:0 5px;margin-inline-start:4px}
+ul{margin:0;padding-inline-start:18px;font-size:14px}li{margin:4px 0}
+body.preview header h1::after{content:" · תצוגה מקדימה";font-size:13px;color:var(--mute);font-weight:400}
+body.widget header .sub,body.widget .days,body.widget .hideW{display:none}
+body.widget main{grid-template-columns:1fr 1fr;gap:8px;padding:6px 10px}body.widget .card{padding:10px 12px}
+body.widget header{padding:8px 12px 0}body.widget h1{font-size:16px}body.widget .card h2{font-size:13px;margin-bottom:6px}
+body.widget .ev,body.widget .task{font-size:12px}body.widget .task small{display:none}body.widget .where{font-size:15px}
+</style>
+</head>
+<body>
+<header><h1>הלוח של ניב</h1><div class="sub" id="sub"></div></header>
+<nav class="days" id="days"></nav>
+<main>
+ <section class="card"><h2>איפה אני היום</h2><div class="where" id="where"></div><div class="src" id="wsrc"></div></section>
+ <section class="card hideW"><h2>מקרא נושאים</h2><div class="legend" id="legend"></div></section>
+ <section class="card hideW"><h2>הלו"ז שלי</h2><div id="niv"></div></section>
+ <section class="card"><h2>הילדים ואיסופים</h2><div id="kids"></div><div class="miss" id="kmiss"></div></section>
+ <section class="card"><h2>משימות שחלות ביום הזה</h2><div id="dtasks"></div></section>
+ <section class="card hideW"><h2>קורה היום</h2><ul id="notes"></ul></section>
+ <section class="card hideW"><h2>נסיעות ותפקידים קרובים</h2><div id="trips"></div></section>
+ <section class="card wide hideW"><h2>מטריצת אייזנהאואר – כל המשימות הפתוחות</h2><div class="mx" id="mx"></div></section>
+</main>
+<script>
+const SAMPLE = {"generated": "2026-11-04T11:40:00+01:00", "today": "2026-11-04", "tasks": [{"row": 2, "task": "משימת משפחה לדוגמה", "topic": "משפחה", "matrix": "דחוף+חשוב", "due": "2026-11-04", "reminder": "", "status": "פתוח", "next": "צעד הבא לדוגמה"}, {"row": 3, "task": "סדנת TRM לדוגמה", "topic": "TRM סדנאות", "matrix": "חשוב", "due": "", "reminder": "", "status": "פתוח", "next": "צעד הבא"}, {"row": 4, "task": "כרטיס הרפתקה לדוגמה", "topic": "הרפתקאות עם הילדים", "matrix": "חשוב", "due": "", "reminder": "", "status": "פתוח", "next": "צעד הבא"}, {"row": 5, "task": "מפגש תעשייה לדוגמה", "topic": "תיווך תעופה", "matrix": "דחוף", "due": "", "reminder": "2026-11-04", "status": "פתוח", "next": "צעד הבא"}, {"row": 6, "task": "מסמך עסק לדוגמה", "topic": "עוסק זעיר/מס", "matrix": "לא דחוף לא חשוב", "due": "", "reminder": "", "status": "פתוח", "next": "צעד הבא"}], "days": {"2026-11-04": {"niv": [{"start": "10:00", "end": "11:00", "title": "אירוע לדוגמה"}], "kids": [{"kid": "ילד/ה א", "start": "09:00", "end": "10:00", "title": "פעילות לדוגמה", "pickup": ""}], "notes": ["הערה לדוגמה"]}, "2026-11-05": {"niv": [{"start": "10:00", "end": "11:00", "title": "אירוע לדוגמה"}], "kids": [], "notes": ["הערה לדוגמה"]}, "2026-11-06": {"niv": [{"start": "10:00", "end": "11:00", "title": "אירוע לדוגמה"}], "kids": [{"kid": "ילד/ה א", "start": "09:00", "end": "10:00", "title": "פעילות לדוגמה", "pickup": ""}], "notes": ["הערה לדוגמה"]}, "2026-11-07": {"niv": [{"start": "10:00", "end": "11:00", "title": "אירוע לדוגמה"}], "kids": [], "notes": ["הערה לדוגמה"]}, "2026-11-08": {"niv": [{"start": "10:00", "end": "11:00", "title": "אירוע לדוגמה"}], "kids": [{"kid": "ילד/ה א", "start": "09:00", "end": "10:00", "title": "פעילות לדוגמה", "pickup": ""}], "notes": ["הערה לדוגמה"]}, "2026-11-09": {"niv": [{"start": "10:00", "end": "11:00", "title": "אירוע לדוגמה"}], "kids": [], "notes": ["הערה לדוגמה"]}, "2026-11-10": {"niv": [{"start": "10:00", "end": "11:00", "title": "אירוע לדוגמה"}], "kids": [{"kid": "ילד/ה א", "start": "09:00", "end": "10:00", "title": "פעילות לדוגמה", "pickup": ""}], "notes": ["הערה לדוגמה"]}}, "location": [{"start": "2026-01-01", "end": "2027-12-31", "place": "גרמניה", "kind": "home", "detail": "נתוני דוגמה", "certainty": "final"}], "locationSource": "נתוני דוגמה"};
+// Live mode: Apps Script web app (read-only). Key is stored once per device:
+// open the page once with ?key=SECRET -> saved in localStorage, removed from the address bar.
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYlw7fm5a82TAel2YCS6sMxDRQ5e7ynHAK2epBg9EGL_iLH5W0BEo_8vQVBlZQVxdL8A/exec"; // <-- replace with the /exec URL of the NEW standalone dashboard Apps Script
+const TOPICS = {"משפחה":"--c-fam","TRM סדנאות":"--c-trm","הרפתקאות עם הילדים":"--c-adv","תיווך תעופה":"--c-avi","עוסק זעיר/מס":"--c-tax","ביטוח/בריאות":"--c-ins","אחר":"--c-oth"};
+const Q = [["דחוף+חשוב","לעשות עכשיו"],["חשוב","לתכנן זמן"],["דחוף","מהר וקצר / להאציל"],["לא דחוף לא חשוב","אולי אחר כך"]];
+const DOW=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=d=>{const [y,m,dd]=d.split("-");return `${+dd}.${+m}`};
+const locate=(D,d)=>D.location.find(l=>l.start<=d&&d<=l.end);
+const col=t=>`var(${TOPICS[t]||"--c-oth"})`;
+function taskHtml(t,today){
+  const dates=[t.due&&`יעד ${fmt(t.due)}`,t.reminder&&`תזכורת ${fmt(t.reminder)}`].filter(Boolean).join(" · ");
+  const flag=(t.due===today||t.reminder===today)?'<span class="today-tag">היום</span>':"";
+  return `<div class="task" style="border-inline-start-color:${col(t.topic)}">${esc(t.task)}${flag}<small>${esc(t.topic)} · ${esc(t.status)}${dates?" · "+dates:""} — ${esc(t.next)}</small></div>`;
+}
+function render(D,sel){
+  const days=Object.keys(D.days).sort();
+  $("sub").textContent=`עודכן ${D.generated.slice(8,10)}.${D.generated.slice(5,7)} ${D.generated.slice(11,16)} · שעון מינכן`;
+  $("days").innerHTML=days.map(d=>{const w=DOW[new Date(d+"T12:00:00").getDay()];return `<button class="${d===sel?"on":""}" data-d="${d}">${d===D.today?"היום":w} ${fmt(d)}</button>`}).join("");
+  $("days").querySelectorAll("button").forEach(b=>b.onclick=()=>render(D,b.dataset.d));
+  const day=D.days[sel];
+  const loc=locate(D,sel);
+  $("where").textContent=loc?loc.place+(loc.detail?" · "+loc.detail:""):"לא ידוע";
+  $("wsrc").textContent=loc?`${loc.certainty==="final"?"סופי":"בקשה – לא סופי"} · מקור: ${D.locationSource}`:"אין רישום ברשימת המיקום";
+  const inIL=loc&&loc.place!=="גרמניה";
+  $("trips").innerHTML=D.location.filter(l=>l.end>=sel&&l.place!=="גרמניה").slice(0,6).map(l=>`<div class="ev"><span class="t">${fmt(l.start)}${l.end!==l.start?"–"+fmt(l.end):""}</span><span>${esc(l.place)}${l.detail?" · "+esc(l.detail):""}${l.certainty==="request"?'<span class="who">בקשה</span>':""}</span></div>`).join("");
+  const tr=e=>`${e.start}${e.end?"–"+e.end:""}`;
+  $("niv").innerHTML=day.niv.length?day.niv.map(e=>`<div class="ev"><span class="t">${tr(e)}</span><span>${esc(e.title)}</span></div>`).join(""):'<div class="src">אין אירועים ביומן הראשי</div>';
+  $("kids").innerHTML=day.kids.length?day.kids.map(e=>`<div class="ev"><span class="t">${tr(e)}</span><span>${esc(e.kid)}: ${esc(e.title)}<span class="who">איסוף: ${inIL?"מימי (הנחה)":"ניב"}</span></span></div>`).join(""):'<div class="src">אין אירועים ביומני הילדים</div>';
+  const missEnd=day.kids.some(e=>!e.end);
+  $("kmiss").textContent=(missEnd?"חסר: שעת סיום (יומני הילדים). ":"")+(inIL?"ניב לא בגרמניה → מימי אוספת (הנחה).":"");
+  const dt=D.tasks.filter(t=>t.due===sel||t.reminder===sel);
+  $("dtasks").innerHTML=dt.length?dt.map(t=>taskHtml(t,D.today)).join(""):'<div class="src">אין משימות עם יעד או תזכורת ביום הזה</div>';
+  $("notes").innerHTML=day.notes.map(n=>`<li>${esc(n)}</li>`).join("");
+  $("mx").innerHTML=Q.map(([k,h])=>{const ts=D.tasks.filter(t=>t.matrix===k);return `<div class="q"><h3>${k} <span class="hint">· ${h} (${ts.length})</span></h3>${ts.map(t=>taskHtml(t,D.today)).join("")}</div>`}).join("");
+}
+$("legend").innerHTML=Object.keys(TOPICS).map(t=>`<span><span class="dot" style="background:${col(t)}"></span>${t}</span>`).join("");
+(async()=>{
+ const qs=new URLSearchParams(location.search);
+ if(qs.get("key")){localStorage.setItem("nivKey",qs.get("key"));qs.delete("key");history.replaceState(null,"",location.pathname+(qs.toString()?"?"+qs:""));}
+ if(qs.get("view")==="widget")document.body.classList.add("widget");
+ let D=SAMPLE,live=false;const key=localStorage.getItem("nivKey");
+ if(APPS_SCRIPT_URL&&!APPS_SCRIPT_URL.includes("_HERE")&&key){try{const r=await fetch(`${APPS_SCRIPT_URL}?key=${encodeURIComponent(key)}&days=7`);const j=await r.json();if(j&&j.days){D=j;live=true}}catch(e){}}
+ if(!live)document.body.classList.add("preview");
+ const sel=D.days[D.today]?D.today:Object.keys(D.days).sort()[0];render(D,sel);})();
+</script>
+</body></html>
