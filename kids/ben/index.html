@@ -229,7 +229,7 @@ var BEN_MAIL_URL = "https://script.google.com/macros/s/AKfycbwijY_uMoVurCDfsgYe0
 var BEN_MAIL_KEY = "";   // fallback only – leave empty (anything here is public)
 var MAIL_POLL_MS = 2*60e3;
 // ==================================================================
-var TZ="Europe/Berlin", LAT=48.137, LON=11.575, BUILD="ben v6 03.11";
+var TZ="Europe/Berlin", LAT=48.137, LON=11.575, BUILD="ben v7.1 14.11";
 var HEB_DAYS=["יום ראשון","יום שני","יום שלישי","יום רביעי","יום חמישי","יום שישי","שבת"];
 var HEB_MONTHS=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 var WMO={0:["☀️","שמש"],1:["🌤️","בעיקר שמש"],2:["⛅","מעונן חלקית"],3:["☁️","מעונן"],45:["🌫️","ערפל"],48:["🌫️","ערפל קפוא"],
@@ -250,6 +250,8 @@ if(q.get("now")){var w0=q.get("now"),guess=Date.parse(w0+":00Z"),p0=munichParts(
 function nowMs(){return Date.now()+simOffset;}
 function now(){return munichParts(nowMs());}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+// URLs (http:// or https://) in a message become tappable links; everything else stays escaped text
+function linkify(s){s=String(s==null?"":s);var re=/https?:\/\/[^\s<>"]+/g,out="",i=0,m;while((m=re.exec(s))){var u=m[0].replace(/[.,;:!?)\]}'"]+$/,"");out+=esc(s.slice(i,m.index))+'<a href="'+esc(u)+'" target="_blank" rel="noopener noreferrer" style="color:#1565c0;text-decoration:underline;word-break:break-all">'+esc(u)+"</a>";i=m.index+u.length;re.lastIndex=i;}return out+esc(s.slice(i));}
 function dObj(iso){var a=iso.split("-");return new Date(Date.UTC(+a[0],a[1]-1,+a[2]));}
 function addDays(iso,n){var d=dObj(iso);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
 function dateTxt(iso){var d=dObj(iso);return HEB_DAYS[d.getUTCDay()]+", "+d.getUTCDate()+" ב"+HEB_MONTHS[d.getUTCMonth()];}
@@ -368,7 +370,7 @@ function confetti(){var c=document.getElementById("confetti"),em=["🎉","⭐","
 // ---- diary: saved on this iPad, copy sent (write-only) to Drive when configured ----
 // Entry: {id,ts,txt,synced, sendTo:[keys waiting], sentTo:[keys done], deleted}
 // Recipients are KEYS only; the email addresses live in the Apps Script allowlist, never on this page.
-var RCP=[["abba","👨","אבא"],["ima","👩","אמא"],["savta","👵","סבתא"],["noam","👦","נועם"],["saba","👴","סבא"]];
+var RCP=[["abba","👨","אבא"],["ima","👩","אמא"],["savta","👵","סבתא"],["noam","👦","נועם"],["saba","👴","סבא"],["shir","👩‍🦰","דודה שיר"],["roni","👱‍♀️","דודה רוני"]];
 function rcpName(k){for(var i=0;i<RCP.length;i++)if(RCP[i][0]===k)return RCP[i][1]+" "+RCP[i][2];return "";}
 var picked={}, lastSaved=null, askDel=null;
 function getDiary(){try{return JSON.parse(localStorage.getItem("ben-diary")||"[]");}catch(e){return [];}}
@@ -564,7 +566,7 @@ function renderChat(toBottom){
  var all=msgs.concat(pendingFor(chatKey(),msgs)).sort(function(a,b){return a.ts-b.ts;}), h="", lastDay="";
  if(!all.length)h='<div class="cempty"><div class="em">'+esc(p.icon||"✉️")+'</div>'+(CHAT||chatBusy===false?"עוד אין הודעות.<br>אפשר לכתוב ל"+esc(p.name||"")+"! ✏️":"טוען…")+'</div>';
  all.forEach(function(m){var d=dayLabel(m.ts);if(d!==lastDay){h+='<div class="cday">'+esc(d)+'</div>';lastDay=d;}
-  h+='<div class="bub '+(m.fromBen?"me":"them")+(m.unread?" new":"")+'">'+esc(m.text)+'<span class="bt">'+(m.fromBen?(m.pending?"⏳ ":"✓ "):"")+hm(m.ts)+'</span></div>';});
+  h+='<div class="bub '+(m.fromBen?"me":"them")+(m.unread?" new":"")+'">'+linkify(m.text)+'<span class="bt">'+(m.fromBen?(m.pending?"⏳ ":"✓ "):"")+hm(m.ts)+'</span></div>';});
  document.getElementById("cmsgs").innerHTML=h;
  if(toBottom)setTimeout(function(){window.scrollTo(0,document.body.scrollHeight);},0);
 }
