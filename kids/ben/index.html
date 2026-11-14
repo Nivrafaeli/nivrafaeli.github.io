@@ -229,7 +229,7 @@ var BEN_MAIL_URL = "https://script.google.com/macros/s/AKfycbwijY_uMoVurCDfsgYe0
 var BEN_MAIL_KEY = "";   // fallback only – leave empty (anything here is public)
 var MAIL_POLL_MS = 2*60e3;
 // ==================================================================
-var TZ="Europe/Berlin", LAT=48.137, LON=11.575, BUILD="ben v7 14.11";
+var TZ="Europe/Berlin", LAT=48.137, LON=11.575, BUILD="ben v7.1 14.11";
 var HEB_DAYS=["יום ראשון","יום שני","יום שלישי","יום רביעי","יום חמישי","יום שישי","שבת"];
 var HEB_MONTHS=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 var WMO={0:["☀️","שמש"],1:["🌤️","בעיקר שמש"],2:["⛅","מעונן חלקית"],3:["☁️","מעונן"],45:["🌫️","ערפל"],48:["🌫️","ערפל קפוא"],
@@ -370,7 +370,7 @@ function confetti(){var c=document.getElementById("confetti"),em=["🎉","⭐","
 // ---- diary: saved on this iPad, copy sent (write-only) to Drive when configured ----
 // Entry: {id,ts,txt,synced, sendTo:[keys waiting], sentTo:[keys done], deleted}
 // Recipients are KEYS only; the email addresses live in the Apps Script allowlist, never on this page.
-var RCP=[["abba","👨","אבא"],["ima","👩","אמא"],["savta","👵","סבתא"],["noam","👦","נועם"],["saba","👴","סבא"]];
+var RCP=[["abba","👨","אבא"],["ima","👩","אמא"],["savta","👵","סבתא"],["noam","👦","נועם"],["saba","👴","סבא"],["shir","👩‍🦰","דודה שיר"],["roni","👱‍♀️","דודה רוני"]];
 function rcpName(k){for(var i=0;i<RCP.length;i++)if(RCP[i][0]===k)return RCP[i][1]+" "+RCP[i][2];return "";}
 var picked={}, lastSaved=null, askDel=null;
 function getDiary(){try{return JSON.parse(localStorage.getItem("ben-diary")||"[]");}catch(e){return [];}}
